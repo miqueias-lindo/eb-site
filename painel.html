@@ -138,6 +138,12 @@ td{padding:0.6rem 1rem;font-size:0.7rem;border-bottom:1px solid rgba(0,255,136,0
   <div class="sidebar-item" onclick="trocarTab('ficha',this)"><span class="icon">📁</span>Ficha do Membro</div>
   <div class="sidebar-item" onclick="trocarTab('regras',this)"><span class="icon">📜</span>Regras do Grupo</div>
   <div class="sidebar-item" onclick="trocarTab('punicoes',this)"><span class="icon">📋</span>Histórico de Punições</div>
+  <div class="sidebar-section">// Comunidade</div>
+  <div class="sidebar-item" onclick="trocarTab('honra',this)"><span class="icon">🏆</span>Quadro de Honra</div>
+  <div class="sidebar-item" onclick="trocarTab('avisos',this)"><span class="icon">📢</span>Mural de Avisos</div>
+  <div class="sidebar-item" onclick="trocarTab('eventos',this)"><span class="icon">📅</span>Eventos</div>
+  <div class="sidebar-item" onclick="trocarTab('loja',this)"><span class="icon">🛒</span>Loja de Patentes</div>
+  <div class="sidebar-item" onclick="trocarTab('promocao',this)"><span class="icon">⬆️</span>Pedir Promoção</div>
   <div class="sidebar-section">// Relatórios</div>
   <div class="sidebar-item" onclick="trocarTab('rel-treino',this)"><span class="icon">📖</span>Treinamento</div>
   <div class="sidebar-item" onclick="trocarTab('rel-recrutamento',this)"><span class="icon">🪖</span>Recrutamento</div>
@@ -147,6 +153,8 @@ td{padding:0.6rem 1rem;font-size:0.7rem;border-bottom:1px solid rgba(0,255,136,0
   <div class="sidebar-item" onclick="trocarTab('rel-exilio',this)"><span class="icon">🏴‍☠️</span>Exílio</div>
   <div class="sidebar-divider"></div>
   <div class="sidebar-item" id="staffMenuItem" style="display:none;" onclick="trocarTab('staff',this)"><span class="icon">🛡️</span>Painel Staff</div>
+  <div class="sidebar-item" id="comprasMenuItem" style="display:none;" onclick="trocarTab('compras',this)"><span class="icon">🛒</span>Confirmar Compras</div>
+  <div class="sidebar-item" id="honraEditMenuItem" style="display:none;" onclick="mostrarEditorHonra()"><span class="icon">✏️</span>Editar Honra</div>
   <div class="sidebar-logout" onclick="fazerLogout()"><span class="icon">🚪</span>Sair</div>
 </div>
 
@@ -346,7 +354,129 @@ td{padding:0.6rem 1rem;font-size:0.7rem;border-bottom:1px solid rgba(0,255,136,0
     </div>
   </div>
 
+
+  <!-- QUADRO DE HONRA -->
+  <div class="content-tab" id="tab-honra">
+    <div class="tab-title">Quadro de Honra</div>
+    <div class="tab-sub">// Os melhores do Exército Brasileiro</div>
+    <div class="content-box">
+      <div class="box-title">// 🏅 Alto Comando</div>
+      <div class="list-item"><span class="list-num">👑</span><div><strong style="color:#ffd700;">Rafael</strong> — <span style="color:rgba(160,255,204,0.6);">Dono do EB</span></div></div>
+      <div class="list-item"><span class="list-num">💻</span><div><strong style="color:#00ff88;">Miqueias</strong> — <span style="color:rgba(160,255,204,0.6);">Developer</span></div></div>
+      <div class="list-item"><span class="list-num">💻</span><div><strong style="color:#00ff88;">Delta</strong> — <span style="color:rgba(160,255,204,0.6);">Developer</span></div></div>
+    </div>
+    <div class="content-box">
+      <div class="box-title">// 🥇 Destaque da Semana</div>
+      <div id="honra-semana">
+        <div class="list-item"><span class="list-num">🥇</span><div><strong style="color:#fff;">Mais Treinos & Tickets</strong> — <span style="color:var(--green);" id="honra1">A definir</span></div></div>
+        <div class="list-item"><span class="list-num">🥈</span><div><strong style="color:#fff;">Mais Ativo</strong> — <span style="color:var(--green);" id="honra2">A definir</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MURAL DE AVISOS -->
+  <div class="content-tab" id="tab-avisos">
+    <div class="tab-title">Mural de Avisos</div>
+    <div class="tab-sub">// Comunicados oficiais do EB</div>
+    <div class="content-box" id="staff-aviso-form" style="display:none;">
+      <div class="box-title">// 📢 Novo Aviso (Staff)</div>
+      <label class="form-label">Título</label>
+      <input type="text" class="form-input" id="aviso-titulo" placeholder="Título do aviso">
+      <label class="form-label">Mensagem</label>
+      <textarea class="form-input" id="aviso-msg" placeholder="Mensagem..."></textarea>
+      <button class="btn-enviar" onclick="enviarAviso()">⬡ PUBLICAR AVISO</button>
+      <div class="msg" id="msg-aviso"></div>
+    </div>
+    <div id="lista-avisos">
+      <div style="text-align:center;padding:2rem;font-size:0.7rem;color:rgba(0,255,136,0.3);">Nenhum aviso no momento.</div>
+    </div>
+  </div>
+
+  <!-- EVENTOS -->
+  <div class="content-tab" id="tab-eventos">
+    <div class="tab-title">Eventos</div>
+    <div class="tab-sub">// Próximos eventos do EB</div>
+    <div class="content-box" id="staff-evento-form" style="display:none;">
+      <div class="box-title">// 📅 Criar Evento (Staff)</div>
+      <label class="form-label">Nome do Evento</label>
+      <input type="text" class="form-input" id="ev-nome" placeholder="Nome do evento">
+      <label class="form-label">Tipo</label>
+      <select class="form-input" id="ev-tipo">
+        <option>Treinamento</option>
+        <option>Operação</option>
+        <option>Guerra</option>
+        <option>Patrulha</option>
+        <option>Sorteio</option>
+        <option>Cerimônia</option>
+        <option>Outro</option>
+      </select>
+      <label class="form-label">Data e Hora</label>
+      <input type="datetime-local" class="form-input" id="ev-data">
+      <label class="form-label">Descrição</label>
+      <textarea class="form-input" id="ev-desc" placeholder="Detalhes do evento..."></textarea>
+      <label class="form-label">Canal</label>
+      <select class="form-input" id="ev-canal">
+        <option value="eventos">📅 Eventos</option>
+        <option value="anuncios">📢 Anúncios</option>
+        <option value="sorteios">🎁 Sorteios</option>
+      </select>
+      <button class="btn-enviar" onclick="enviarEvento()">⬡ CRIAR EVENTO</button>
+      <div class="msg" id="msg-evento"></div>
+    </div>
+    <div id="lista-eventos">
+      <div style="text-align:center;padding:2rem;font-size:0.7rem;color:rgba(0,255,136,0.3);">Nenhum evento agendado.</div>
+    </div>
+  </div>
+
+  <!-- LOJA DE PATENTES -->
+  <div class="content-tab" id="tab-loja">
+    <div class="tab-title">Loja de Patentes</div>
+    <div class="tab-sub">// Adquira sua patente</div>
+    <div class="content-box" id="staff-precos-form" style="display:none;">
+      <div class="box-title">// 💰 Editar Preços (Staff)</div>
+      <div id="form-precos"></div>
+      <button class="btn-enviar" onclick="salvarPrecos()">⬡ SALVAR PREÇOS</button>
+      <div class="msg" id="msg-precos"></div>
+    </div>
+    <div id="lista-patentes" class="content-box">
+      <div class="box-title">// 🛒 Patentes Disponíveis</div>
+      <div id="patentes-grid"></div>
+    </div>
+  </div>
+
+  <!-- PEDIR PROMOÇÃO -->
+  <div class="content-tab" id="tab-promocao">
+    <div class="tab-title">Solicitar Promoção</div>
+    <div class="tab-sub">// Envie sua solicitação ao staff</div>
+    <div class="content-box">
+      <label class="form-label">👤 Seu Nick</label>
+      <input type="text" class="form-input" id="prom-nick" placeholder="Seu nick no Roblox">
+      <label class="form-label">⬆️ Patente Atual</label>
+      <input type="text" class="form-input" id="prom-atual" placeholder="Sua patente atual">
+      <label class="form-label">🎯 Patente Desejada</label>
+      <input type="text" class="form-input" id="prom-desejada" placeholder="Patente que quer alcançar">
+      <label class="form-label">📝 Justificativa</label>
+      <textarea class="form-input" id="prom-just" placeholder="Por que merece a promoção?"></textarea>
+      <label class="form-label">📸 Evidências</label>
+      <input type="file" class="form-input" id="prom-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviarPromocao()">⬡ ENVIAR SOLICITAÇÃO</button>
+      <div class="msg" id="msg-promocao"></div>
+    </div>
+  </div>
+
+  <!-- CONFIRMAR COMPRAS (STAFF) -->
+  <div class="content-tab" id="tab-compras">
+    <div class="tab-title">Confirmar Compras</div>
+    <div class="tab-sub">// Pedidos de patente pendentes</div>
+    <div class="staff-badge">⚠ ÁREA RESTRITA — STAFF AUTORIZADO</div>
+    <div class="content-box">
+      <table><tr><th>Nick</th><th>Patente</th><th>Data</th><th>Ação</th></tr>
+      <tbody id="comprasTabela"><tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Nenhuma compra pendente.</td></tr></tbody></table>
+    </div>
+  </div>
+
 </main>
+
 
 <div class="toast" id="toast"></div>
 
@@ -376,6 +506,9 @@ window.addEventListener('load', async () => {
     return;
   }
   carregarUsuario(session);
+  const precosGuardados = localStorage.getItem('eb_precos');
+  if (precosGuardados) precos = JSON.parse(precosGuardados);
+  carregarLoja();
 });
 
 async function carregarUsuario(session) {
@@ -408,7 +541,13 @@ async function carregarUsuario(session) {
       ).join('');
       document.getElementById('fichaPatente').textContent = dados.patente || 'Membro';
       if (isStaff) {
+        isStaffUser = true;
         document.getElementById('staffMenuItem').style.display = 'flex';
+        document.getElementById('comprasMenuItem').style.display = 'flex';
+        document.getElementById('honraEditMenuItem').style.display = 'flex';
+        document.getElementById('staff-aviso-form').style.display = 'block';
+        document.getElementById('staff-evento-form').style.display = 'block';
+        document.getElementById('staff-precos-form').style.display = 'block';
         carregarStaff();
       }
     } else if (isAdmin) {
@@ -512,6 +651,234 @@ function trocarTab(tab, el) {
   fecharSidebar();
 }
 
+const PATENTES_LOJA = [
+  {id:'aspirante', nome:'Aspirante a Oficial', emoji:'🎖️'},
+  {id:'tenente2', nome:'2º Tenente', emoji:'⭐'},
+  {id:'tenente1', nome:'1º Tenente', emoji:'⭐⭐'},
+  {id:'capitao', nome:'Capitão', emoji:'⭐⭐⭐'},
+  {id:'major', nome:'Major', emoji:'🔴'},
+  {id:'tcel', nome:'Tenente-Coronel', emoji:'🔴🔴'},
+  {id:'coronel', nome:'Coronel', emoji:'🔴🔴🔴'},
+  {id:'genbrigada', nome:'General de Brigada', emoji:'💫'},
+  {id:'gendivisao', nome:'General de Divisão', emoji:'💫💫'},
+  {id:'genexercito', nome:'General de Exército', emoji:'💫💫💫'},
+  {id:'marechal', nome:'Marechal', emoji:'🏅'},
+];
+
+let precos = {};
+let isStaffUser = false;
+let pedidosCompra = [];
+
+function carregarLoja() {
+  const grid = document.getElementById('patentes-grid');
+  const formPrecos = document.getElementById('form-precos');
+  
+  let htmlGrid = '';
+  let htmlForm = '';
+  
+  PATENTES_LOJA.forEach(p => {
+    const preco = precos[p.id] || 'A definir';
+    htmlGrid += `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid rgba(0,255,136,0.05);">
+        <div>
+          <span style="font-size:1.2rem;">${p.emoji}</span>
+          <span style="color:#fff;margin-left:0.5rem;font-family:var(--sans);font-size:1rem;">${p.nome}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="color:var(--green);font-size:0.85rem;">${preco !== 'A definir' ? preco + ' R$' : 'A definir'}</span>
+          ${preco !== 'A definir' ? `<button class="btn-enviar" style="padding:6px 14px;font-size:0.6rem;" onclick="comprarPatente('${p.id}','${p.nome}','${preco}')">COMPRAR</button>` : '<span style="font-size:0.6rem;color:rgba(160,255,204,0.3);">INDISPONÍVEL</span>'}
+        </div>
+      </div>`;
+    
+    htmlForm += `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+        <span style="width:160px;font-size:0.7rem;color:var(--text);">${p.emoji} ${p.nome}</span>
+        <input type="number" class="form-input" style="margin-bottom:0;" id="preco-${p.id}" placeholder="Preço em R$" value="${precos[p.id]||''}">
+      </div>`;
+  });
+  
+  grid.innerHTML = htmlGrid;
+  formPrecos.innerHTML = htmlForm;
+}
+
+function salvarPrecos() {
+  PATENTES_LOJA.forEach(p => {
+    const val = document.getElementById('preco-' + p.id)?.value;
+    if (val) precos[p.id] = val;
+  });
+  localStorage.setItem('eb_precos', JSON.stringify(precos));
+  const msg = document.getElementById('msg-precos');
+  msg.textContent = '✓ Preços salvos!';
+  msg.className = 'msg ok';
+  msg.style.display = 'block';
+  carregarLoja();
+  toast('✓ Preços atualizados!');
+}
+
+async function comprarPatente(id, nome, preco) {
+  const nick = prompt('Digite seu nick no Roblox:');
+  if (!nick) return;
+  
+  const pedido = {nick, patente: nome, preco, data: new Date().toLocaleDateString('pt-BR'), status: 'pendente'};
+  pedidosCompra.push(pedido);
+  
+  try {
+    await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        tipo: 'venda',
+        campos: {nick, patente: nome, preco, data: pedido.data}
+      })
+    });
+  } catch(e) {}
+  
+  toast('✓ Pedido enviado! Aguarde confirmação do staff.');
+  atualizarTabelaCompras();
+}
+
+function atualizarTabelaCompras() {
+  const tabela = document.getElementById('comprasTabela');
+  if (!pedidosCompra.length) {
+    tabela.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Nenhuma compra pendente.</td></tr>';
+    return;
+  }
+  tabela.innerHTML = pedidosCompra.map((p, i) => `
+    <tr>
+      <td>${p.nick}</td>
+      <td>${p.patente}</td>
+      <td>${p.data}</td>
+      <td>
+        <button class="btn-action btn-promover" onclick="confirmarCompra(${i})">Confirmar</button>
+        <button class="btn-action btn-ban" onclick="recusarCompra(${i})">Recusar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function confirmarCompra(i) {
+  pedidosCompra.splice(i, 1);
+  atualizarTabelaCompras();
+  toast('✓ Compra confirmada!');
+}
+
+function recusarCompra(i) {
+  pedidosCompra.splice(i, 1);
+  atualizarTabelaCompras();
+  toast('⚠ Compra recusada.');
+}
+
+async function enviarAviso() {
+  const titulo = document.getElementById('aviso-titulo').value;
+  const msg = document.getElementById('aviso-msg').value;
+  if (!titulo || !msg) { toast('⚠ Preencha todos os campos!'); return; }
+  
+  try {
+    await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({tipo:'aviso', campos:{titulo, mensagem: msg}})
+    });
+  } catch(e) {}
+  
+  const lista = document.getElementById('lista-avisos');
+  const aviso = document.createElement('div');
+  aviso.className = 'content-box';
+  aviso.style.marginBottom = '0.75rem';
+  aviso.innerHTML = `<div class="box-title">📢 ${titulo}</div><div style="font-size:0.75rem;line-height:1.8;">${msg}</div><div style="font-size:0.55rem;color:rgba(160,255,204,0.3);margin-top:0.5rem;">${new Date().toLocaleString('pt-BR')}</div>`;
+  lista.innerHTML = '';
+  lista.appendChild(aviso);
+  
+  document.getElementById('aviso-titulo').value = '';
+  document.getElementById('aviso-msg').value = '';
+  
+  const msgEl = document.getElementById('msg-aviso');
+  msgEl.textContent = '✓ Aviso publicado e enviado ao Discord!';
+  msgEl.className = 'msg ok';
+  msgEl.style.display = 'block';
+}
+
+async function enviarEvento() {
+  const nome = document.getElementById('ev-nome').value;
+  const tipo = document.getElementById('ev-tipo').value;
+  const data = document.getElementById('ev-data').value;
+  const desc = document.getElementById('ev-desc').value;
+  const canal = document.getElementById('ev-canal').value;
+  if (!nome || !data) { toast('⚠ Preencha nome e data!'); return; }
+  
+  try {
+    await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({tipo: 'evento_' + canal, campos:{nome, tipo, data, descricao: desc}})
+    });
+  } catch(e) {}
+  
+  const lista = document.getElementById('lista-eventos');
+  const ev = document.createElement('div');
+  ev.className = 'content-box';
+  ev.style.marginBottom = '0.75rem';
+  ev.innerHTML = `<div class="box-title">📅 ${nome} — ${tipo}</div><div style="font-size:0.7rem;color:var(--green);">${new Date(data).toLocaleString('pt-BR')}</div><div style="font-size:0.75rem;margin-top:0.5rem;line-height:1.8;">${desc}</div>`;
+  lista.innerHTML = '';
+  lista.appendChild(ev);
+  
+  document.getElementById('ev-nome').value = '';
+  document.getElementById('ev-desc').value = '';
+  
+  const msgEl = document.getElementById('msg-evento');
+  msgEl.textContent = '✓ Evento criado e enviado ao Discord!';
+  msgEl.className = 'msg ok';
+  msgEl.style.display = 'block';
+}
+
+async function enviarPromocao() {
+  const nick = v('prom-nick');
+  const atual = v('prom-atual');
+  const desejada = v('prom-desejada');
+  const just = v('prom-just');
+  
+  let imagem = null;
+  const imgEl = document.getElementById('prom-img');
+  if (imgEl && imgEl.files[0]) {
+    imagem = await new Promise(r => {
+      const fr = new FileReader();
+      fr.onload = e => r(e.target.result);
+      fr.readAsDataURL(imgEl.files[0]);
+    });
+  }
+  
+  try {
+    const resp = await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({tipo:'promocao', campos:{nick, patente_atual: atual, patente_desejada: desejada, justificativa: just}, imagem})
+    });
+    const data = await resp.json();
+    const msgEl = document.getElementById('msg-promocao');
+    if (data.ok) {
+      msgEl.textContent = '✓ Solicitação enviada ao staff!';
+      msgEl.className = 'msg ok';
+    } else {
+      msgEl.textContent = '⚠ ' + (data.error||'Erro ao enviar');
+      msgEl.className = 'msg erro';
+    }
+    msgEl.style.display = 'block';
+  } catch(e) {
+    const msgEl = document.getElementById('msg-promocao');
+    msgEl.textContent = '⚠ Erro de conexão.';
+    msgEl.className = 'msg erro';
+    msgEl.style.display = 'block';
+  }
+}
+
+function mostrarEditorHonra() {
+  const n1 = prompt('1º Lugar (Mais Treinos):', document.getElementById('honra1').textContent);
+  if (n1) document.getElementById('honra1').textContent = n1;
+  const n2 = prompt('2º Lugar (Mais Ativo):', document.getElementById('honra2').textContent);
+  if (n2) document.getElementById('honra2').textContent = n2;
+  toast('✓ Quadro de honra atualizado!');
+}
+
 async function fazerLogout() {
   await db.auth.signOut();
   window.location.href = 'index.html';
@@ -526,3 +893,4 @@ function toast(msg) {
 </script>
 </body>
 </html>
+<!-- PLACEHOLDER - será substituído pelo script Python abaixo -->
