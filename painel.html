@@ -799,7 +799,8 @@ async function carregarUsuario() {
   const roles = meta.roles || [];
   const cargosEl = document.getElementById('perfilCargos');
 
-  const isStaff = ADMINS.includes(user.id);
+  const discordId = meta.provider_id || meta.sub || user.id;
+  const isStaff = ADMINS.includes(discordId);
 
   if (roles.length > 0) {
     cargosEl.innerHTML = roles.slice(0, 5).map(r =>
