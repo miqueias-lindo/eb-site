@@ -228,22 +228,25 @@ async function fazerCadastro() {
   btn.disabled = true;
   btn.textContent = 'CRIANDO...';
 
-  // Usa email real do usuário
   const { data, error } = await db.auth.signUp({
     email,
     password: senha,
     options: { data: { nick_roblox: nick } }
   });
 
-  btn.disabled = false;
-  btn.textContent = '⬡ CRIAR CONTA';
-
   if (error) {
+    btn.disabled = false;
+    btn.textContent = '⬡ CRIAR CONTA';
     mostrarMsg('erroCadastro', error.message.includes('already') ? 'Email já cadastrado.' : 'Erro ao criar conta.', 'erro');
     return;
   }
 
-  mostrarMsg('okCadastro', 'Conta criada com sucesso! Já pode fazer login.', 'ok');
+  // Salva nick e email na tabela usuarios
+  await db.from('usuarios').insert({ nick, email });
+
+  btn.disabled = false;
+  btn.textContent = '⬡ CRIAR CONTA';
+  mostrarMsg('okCadastro', 'Conta criada! Já pode fazer login.', 'ok');
 }
 
 async function loginDiscord() {
