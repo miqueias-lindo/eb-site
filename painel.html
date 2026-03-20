@@ -753,15 +753,19 @@ const STAFF_ROLE_ID = '1470615090951880806';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Esconde intro após animação e verifica login
-setTimeout(async () => {
-  const intro = document.getElementById("intro");
-  intro.style.transition = "opacity 0.5s ease";
-  intro.style.opacity = "0";
-  setTimeout(() => { intro.style.display = "none"; }, 500);
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) window.location.href = "index.html";
-}, 3000);
+// Intro e verificação de login
+db.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    const intro = document.getElementById("intro");
+    setTimeout(() => {
+      intro.style.transition = "opacity 0.5s ease";
+      intro.style.opacity = "0";
+      setTimeout(() => { intro.style.display = "none"; carregarUsuario(); }, 500);
+    }, 2000);
+  } else {
+    setTimeout(() => { window.location.href = "index.html"; }, 2500);
+  }
+});
 
 // Carrega dados do usuário
 async function carregarUsuario() {
