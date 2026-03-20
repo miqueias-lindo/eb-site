@@ -5,73 +5,46 @@ const SUPABASE_KEY = 'sb_publishable_n_EVOo3TszHpm25nWNIj0w_Z9U36-3P';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// INTRO
-setTimeout(() => {
-  const intro = document.getElementById('intro');
-  if (intro){
-    intro.style.opacity = '0';
-    setTimeout(() => intro.style.display = 'none', 500);
+// PROTEÇÃO TOTAL
+async function iniciar() {
+  try {
+    const { data: { session } } = await db.auth.getSession();
+
+    if (!session) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const user = session.user;
+    const meta = user.user_metadata || {};
+
+    const nome = meta.full_name || meta.name || 'Soldado';
+
+    // VERIFICA SE ELEMENTOS EXISTEM (evita tela branca)
+    if (document.getElementById('perfilNome'))
+      document.getElementById('perfilNome').textContent = nome;
+
+    if (document.getElementById('navNome'))
+      document.getElementById('navNome').textContent = nome;
+
+    if (document.getElementById('fichaNome'))
+      document.getElementById('fichaNome').textContent = nome;
+
+    // AVATAR
+    if (meta.avatar_url || meta.picture) {
+      const avatar = meta.avatar_url || meta.picture;
+
+      const el = document.getElementById('perfilAvatar');
+      if (el) {
+        el.outerHTML = `<img src="${avatar}" class="perfil-avatar">`;
+      }
+    }
+
+  } catch (err) {
+    console.error('ERRO:', err);
+    alert('Erro no sistema, abre o console (F12)');
   }
-}, 3000);
-
-// CARREGAR USUÁRIO
-async function carregarUsuario() {
-  const { data: { session } } = await db.auth.getSession();
-
-  if (!session) {
-    window.location.href = 'index.html';
-    return;
-  }
-
-  const user = session.user;
-  const meta = user.user_metadata || {};
-
-  // SALVAR NO BANCO
-  await db.from('usuarios').upsert({
-    email: user.email,
-    nick: meta.full_name || meta.name || 'DiscordUser'
-  });
-
-  // NOME
-  const nome = meta.full_name || meta.name || 'Soldado';
-
-  document.getElementById('perfilNome').textContent = nome;
-  document.getElementById('navNome').textContent = nome;
-  document.getElementById('fichaNome').textContent = nome;
-
-  // AVATAR
-  if (meta.avatar_url || meta.picture) {
-    const avatar = meta.avatar_url || meta.picture;
-    document.getElementById('perfilAvatar').outerHTML =
-      `<img src="${avatar}" class="perfil-avatar">`;
-  }
 }
 
-// LOGOUT
-async function fazerLogout() {
-  await db.auth.signOut();
-  window.location.href = 'index.html';
-}
-
-// MENU
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('active');
-}
-
-function fecharSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('active');
-}
-
-function trocarTab(tab, el) {
-  document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  if (el) el.classList.add('active');
-  fecharSidebar();
-}
-
-// START
-carregarUsuario();
+iniciar();
 </script>
