@@ -800,6 +800,7 @@ async function carregarUsuario() {
   const cargosEl = document.getElementById('perfilCargos');
 
   const discordId = meta.provider_id || meta.sub || user.id;
+  alert("ID retornado: " + discordId);
   const isStaff = ADMINS.includes(discordId);
 
   if (roles.length > 0) {
