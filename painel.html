@@ -163,3 +163,8 @@ function mostrarToast(msg) {
 // START
 carregarUsuario();
 </script>
+<script>
+window.onerror = function(msg, url, line) {
+  alert("ERRO: " + msg + " | linha: " + line);
+};
+</script>
