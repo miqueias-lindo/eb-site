@@ -750,6 +750,7 @@ tr:hover td { background: rgba(0,255,136,0.02); }
 const SUPABASE_URL = 'https://fcrzzuyfmdkkelylphdm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjcnp6dXlmbWRra2VseWxwaGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5ODMzMDIsImV4cCI6MjA4OTU1OTMwMn0.NWDkiRgwZ0PwWErchMmhtYhON3Hx3GuDonClfvwf5lc';
 const ADMINS = ['1443070630294585436', '1240467366408880198'];
+const BOT_API = 'https://bot-eb-production.up.railway.app';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -795,26 +796,42 @@ async function carregarUsuario() {
     document.getElementById('navAvatar').outerHTML = `<img src="${avatarUrl}" class="nav-avatar" id="navAvatar">`;
   }
 
-  // Cargos do Discord (vem nos metadados do OAuth)
-  const roles = meta.roles || [];
-  const cargosEl = document.getElementById('perfilCargos');
 
+  // Busca cargos reais do servidor via API do bot
   const discordId = meta.provider_id || meta.sub || user.id;
-  alert("ID retornado: " + discordId);
-  const isStaff = ADMINS.includes(discordId);
+  const cargosEl = document.getElementById("perfilCargos");
 
-  if (roles.length > 0) {
-    cargosEl.innerHTML = roles.slice(0, 5).map(r =>
-      `<span class="cargo-badge ${isStaff ? 'staff' : ''}">${isStaff ? '🛡️ Staff' : 'Membro'}</span>`
-    ).join('');
-  } else {
+  try {
+    const resp = await fetch(`${BOT_API}/cargos?user_id=${discordId}`);
+    const dadosCargos = await resp.json();
+
+    if (dadosCargos.cargos && dadosCargos.cargos.length > 0) {
+      const STAFF_ROLE_ID = "1470615090951880806";
+      const isStaff = ADMINS.includes(discordId) || dadosCargos.cargos.some(c => c.id === STAFF_ROLE_ID);
+
+      cargosEl.innerHTML = dadosCargos.cargos.slice(0, 5).map(c =>
+        `<span class="cargo-badge ${c.id === STAFF_ROLE_ID ? "staff" : ""}">${c.nome}</span>`
+      ).join("");
+
+      document.getElementById("perfilNome").textContent = dadosCargos.patente !== "Cidadão" ? nome + " • " + dadosCargos.patente : nome;
+
+      if (isStaff) {
+        document.getElementById("staffMenuItem").style.display = "flex";
+        carregarStaff();
+      }
+    } else {
+      cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
+      if (ADMINS.includes(discordId)) {
+        document.getElementById("staffMenuItem").style.display = "flex";
+        carregarStaff();
+      }
+    }
+  } catch (e) {
     cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
-  }
-
-  // Mostra menu staff se tiver o cargo
-  if (isStaff) {
-    document.getElementById('staffMenuItem').style.display = 'flex';
-    carregarStaff();
+    if (ADMINS.includes(discordId)) {
+      document.getElementById("staffMenuItem").style.display = "flex";
+      carregarStaff();
+    }
   }
 }
 
