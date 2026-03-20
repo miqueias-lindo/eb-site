@@ -1,319 +1,179 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EB DO RAFA — LOGIN</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{min-height:100vh;background:#071a0b;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;overflow:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,60,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,60,0.05) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
-body::after{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(0,160,60,0.07) 0%,transparent 70%);pointer-events:none;}
-.container{position:relative;z-index:1;width:100%;max-width:420px;padding:1rem;}
-.card{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.3);padding:2.5rem 2rem;box-shadow:0 0 60px rgba(0,180,60,0.1);}
-.logo-area{text-align:center;margin-bottom:1.5rem;}
-.logo-icon{font-size:2.8rem;display:block;margin-bottom:0.5rem;filter:drop-shadow(0 0 12px rgba(0,255,80,0.5));}
-.logo-title{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:4px;}
-.logo-title span{color:#00cc50;}
-.logo-sub{font-size:0.58rem;letter-spacing:3px;color:rgba(0,200,80,0.4);text-transform:uppercase;margin-top:0.25rem;}
-.status-bar{display:flex;align-items:center;justify-content:center;gap:0.4rem;margin:1rem 0;}
-.status-dot{width:6px;height:6px;background:#00cc50;border-radius:50%;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-.status-text{font-size:0.55rem;letter-spacing:2px;color:rgba(0,200,80,0.5);text-transform:uppercase;}
-.divider-line{height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,80,0.3),transparent);margin:1.25rem 0;}
-.tabs{display:flex;margin-bottom:1.5rem;border:1px solid rgba(0,200,80,0.2);}
-.tab-btn{flex:1;background:transparent;border:none;color:rgba(0,200,80,0.4);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;padding:10px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
-.tab-btn.active{background:rgba(0,200,80,0.1);color:#00cc50;border-bottom:2px solid #00cc50;}
-.tab-content{display:none;}.tab-content.active{display:block;}
-.form-label{display:block;font-size:0.58rem;letter-spacing:3px;color:#00cc50;text-transform:uppercase;margin-bottom:0.4rem;}
-.form-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(0,200,80,0.2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.85rem;padding:11px 14px;outline:none;transition:all 0.2s;margin-bottom:1rem;}
-.form-input:focus{border-color:#00cc50;background:rgba(0,180,60,0.05);}
-.form-input::placeholder{color:rgba(255,255,255,0.15);}
-.btn-main{width:100%;background:#00cc50;border:none;color:#071a0b;font-family:'Share Tech Mono',monospace;font-size:0.78rem;font-weight:700;letter-spacing:3px;padding:13px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
-.btn-main:hover{background:#00ff66;box-shadow:0 4px 20px rgba(0,200,80,0.4);transform:translateY(-1px);}
-.btn-main:disabled{background:rgba(0,200,80,0.3);cursor:not-allowed;transform:none;}
-.ou-text{text-align:center;font-size:0.58rem;color:rgba(255,255,255,0.2);letter-spacing:3px;margin:1.25rem 0;display:flex;align-items:center;gap:0.75rem;}
-.ou-text::before,.ou-text::after{content:'';flex:1;height:1px;background:rgba(0,200,80,0.15);}
-.btn-discord{width:100%;background:#5865F2;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;padding:12px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:0.6rem;transition:all 0.2s;}
-.btn-discord:hover{background:#4752c4;transform:translateY(-1px);}
-.discord-icon{width:18px;height:18px;fill:white;}
-.msg{font-size:0.65rem;letter-spacing:1px;padding:8px 12px;margin-bottom:1rem;display:none;text-align:center;}
-.msg.erro{background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);color:#ff6666;}
-.msg.ok{background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.3);color:#00cc50;}
-.footer-text{text-align:center;font-size:0.5rem;color:rgba(0,200,80,0.2);letter-spacing:2px;margin-top:1.5rem;text-transform:uppercase;}
+import discord
+from discord.ext import commands
+import requests
+import os
+import time
+from collections import defaultdict
 
-/* PAINEL */
-.painel{display:none;position:fixed;inset:0;background:#071a0b;z-index:100;overflow-y:auto;}
-.painel.active{display:block;}
-.painel-nav{background:rgba(5,25,10,0.97);border-bottom:1px solid rgba(0,200,80,0.3);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
-.painel-titulo{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:3px;color:#00cc50;font-size:1rem;}
-.painel-titulo span{color:#fff;}
-.btn-sair{background:transparent;border:1px solid rgba(255,50,50,0.4);color:#ff6666;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:2px;padding:5px 12px;cursor:pointer;text-transform:uppercase;}
-.painel-body{padding:2rem;max-width:900px;margin:0 auto;}
-.painel-header{margin-bottom:2rem;}
-.painel-h1{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:3px;}
-.painel-sub{font-size:0.6rem;color:rgba(0,200,80,0.4);letter-spacing:2px;text-transform:uppercase;margin-top:0.25rem;}
-.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
-.stat-card{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.2);padding:1.25rem;}
-.stat-num{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:#00cc50;}
-.stat-label{font-size:0.58rem;letter-spacing:2px;color:rgba(0,200,80,0.4);text-transform:uppercase;}
-.tabela-box{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.2);overflow-x:auto;}
-.tabela-header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,200,80,0.2);display:flex;align-items:center;justify-content:space-between;}
-.tabela-titulo{font-size:0.6rem;letter-spacing:3px;color:#00cc50;text-transform:uppercase;}
-.busca{background:rgba(0,0,0,0.4);border:1px solid rgba(0,200,80,0.2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.7rem;padding:5px 10px;outline:none;width:180px;}
-table{width:100%;border-collapse:collapse;}
-th{text-align:left;padding:0.75rem 1.5rem;font-size:0.55rem;letter-spacing:2px;color:rgba(0,200,80,0.4);text-transform:uppercase;border-bottom:1px solid rgba(0,200,80,0.15);}
-td{padding:0.75rem 1.5rem;font-size:0.72rem;border-bottom:1px solid rgba(0,200,80,0.05);color:rgba(160,255,204,0.8);}
-tr:hover td{background:rgba(0,200,80,0.03);}
-.badge-ativo{font-size:0.55rem;padding:2px 8px;background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.3);color:#00cc50;}
-.empty-msg{padding:2rem;text-align:center;font-size:0.7rem;color:rgba(0,200,80,0.3);}
-</style>
-</head>
-<body>
+DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
-<!-- LOGIN -->
-<div class="container" id="telaLogin">
-  <div class="card">
-    <div class="logo-area">
-      <span class="logo-icon">🪖</span>
-      <div class="logo-title">EB DO <span>RAFA</span></div>
-      <div class="logo-sub">Sistema Central — Acesso Restrito</div>
-    </div>
-    <div class="status-bar">
-      <div class="status-dot"></div>
-      <div class="status-text">Sistema Operacional</div>
-    </div>
-    <div class="divider-line"></div>
+# Anti-flood: máximo 3 mensagens por minuto por usuário
+flood_control = defaultdict(list)
+FLOOD_LIMITE = 3
+FLOOD_JANELA = 60  # segundos
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="trocarTab('login',this)">Entrar</button>
-      <button class="tab-btn" onclick="trocarTab('cadastro',this)">Criar conta</button>
-    </div>
+def verificar_flood(user_id):
+    agora = time.time()
+    mensagens = flood_control[user_id]
+    # Remove mensagens antigas
+    flood_control[user_id] = [t for t in mensagens if agora - t < FLOOD_JANELA]
+    if len(flood_control[user_id]) >= FLOOD_LIMITE:
+        return True  # está em flood
+    flood_control[user_id].append(agora)
+    return False
 
-    <!-- LOGIN -->
-    <div class="tab-content active" id="tab-login">
-      <div class="msg erro" id="erroLogin"></div>
-      <div class="msg ok" id="okLogin"></div>
-      <label class="form-label">Nick do Roblox</label>
-      <input type="text" class="form-input" id="loginNick" placeholder="SeuNickAqui">
-      <label class="form-label">Senha</label>
-      <input type="password" class="form-input" id="loginSenha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()">
-      <button class="btn-main" id="btnLogin" onclick="fazerLogin()">⬡ ACESSAR</button>
-      <div class="ou-text">LOGIN RÁPIDO</div>
-      <button class="btn-discord" onclick="loginDiscord()">
-        <svg class="discord-icon" viewBox="0 0 71 55"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.7a40.3 40.3 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.3 0A39.5 39.5 0 0 0 25.5.7 58.5 58.5 0 0 0 10.8 5C1.6 18.7-1 32 .3 45.1a59 59 0 0 0 18 9.1 44.7 44.7 0 0 0 3.9-6.3 38.4 38.4 0 0 1-6.1-2.9l1.5-1.1a42.2 42.2 0 0 0 35.9 0l1.5 1.1a38.4 38.4 0 0 1-6.1 2.9 44.4 44.4 0 0 0 3.9 6.3 58.8 58.8 0 0 0 18-9.1C72.4 29.8 68.3 16.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.5 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z"/></svg>
-        ENTRAR COM DISCORD
-      </button>
-    </div>
+# Hierarquia de cargos (mais alto pro mais baixo)
+HIERARQUIA = [
+    "Fundador", "[CD] Con-Dono", "[DG] Diretor Geral", "[VDA] Vice-diretor-geral", "[M] Maneger",
+    "[MAL] Marechal",
+    "[GEN-E] General de Exército", "[GEN-D] General de Divisão", "[GEN-B] General de brigada", "[GEN] Generais",
+    "[CEL] Coronel", "[T-CEL] Tenente Coronel", "[MAJ] Major", "[CAP] Capitão",
+    "[1-TNT] Primeiro Tenente", "[2-TNT] Segundo tenente", "[AAO] Aspirante-A-oficial", "[CDT] Cadete", "[OF] Oficiais",
+    "[SUB-T] Sub Tenente", "[GDS] Graduados",
+    "[1-SGT] Primeiro sargento", "[2-SGT] Segundo Sargento", "[3-SGT] Terceiro sargento",
+    "[PRÇ] Praças", "[CB] Cabo", "[SLD] Soldado", "[RCT] Recruta",
+    "Supervisores", "[ADM] Administrador", "[MOD] Moderador", "[HLP] Helper", "[T-STF] Trial Staff",
+    "[DEV] Developers", "[B] Builder",
+    "Verificado",
+]
 
-    <!-- CADASTRO -->
-    <div class="tab-content" id="tab-cadastro">
-      <div class="msg erro" id="erroCadastro"></div>
-      <div class="msg ok" id="okCadastro"></div>
-      <label class="form-label">Nick do Roblox</label>
-      <input type="text" class="form-input" id="cadNick" placeholder="SeuNickAqui">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-input" id="cadEmail" placeholder="seuemail@gmail.com">
-      <label class="form-label">Senha</label>
-      <input type="password" class="form-input" id="cadSenha" placeholder="Mínimo 6 caracteres">
-      <label class="form-label">Confirmar Senha</label>
-      <input type="password" class="form-input" id="cadSenha2" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')fazerCadastro()">
-      <button class="btn-main" id="btnCadastro" onclick="fazerCadastro()">⬡ CRIAR CONTA</button>
-    </div>
-
-    <div class="footer-text">EB DO RAFA © 2026 — Acesso monitorado</div>
-  </div>
-</div>
-
-<!-- PAINEL SECRETO -->
-<div class="painel" id="painelAdmin">
-  <div class="painel-nav">
-    <div class="painel-titulo">⬡ PAINEL <span>ADMIN</span></div>
-    <button class="btn-sair" onclick="sairPainel()">✕ SAIR</button>
-  </div>
-  <div class="painel-body">
-    <div class="painel-header">
-      <div class="painel-h1">PAINEL DE CONTROLE</div>
-      <div class="painel-sub">// Acesso restrito — EB do Rafa</div>
-    </div>
-    <div class="cards-row">
-      <div class="stat-card">
-        <div class="stat-num" id="totalUsers">0</div>
-        <div class="stat-label">Total de Cadastros</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" id="totalHoje">0</div>
-        <div class="stat-label">Cadastros Hoje</div>
-      </div>
-    </div>
-    <div class="tabela-box">
-      <div class="tabela-header">
-        <span class="tabela-titulo">// TODOS OS USUÁRIOS</span>
-        <input type="text" class="busca" placeholder="Buscar..." oninput="filtrarTabela(this.value)">
-      </div>
-      <table id="tabelaUsers">
-        <tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr>
-        <tr><td colspan="5" class="empty-msg">Carregando...</td></tr>
-      </table>
-    </div>
-  </div>
-</div>
-
-<script>
-const SUPABASE_URL = 'https://fcrzzuyfmdkkelylphdm.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjcnp6dXlmbWRra2VseWxwaGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5ODMzMDIsImV4cCI6MjA4OTU1OTMwMn0.NWDkiRgwZ0PwWErchMmhtYhON3Hx3GuDonClfvwf5lc';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const SENHA_ADMIN = '4kebdev';
-let todosUsuarios = [];
-
-function trocarTab(tab, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
+# (patente_display, saudacao, nivel)
+SAUDACOES = {
+    "Fundador":                     ("Fundador",          "Olá, Fundador! 👑",                    "alto"),
+    "[CD] Con-Dono":                ("Con-Dono",           "Olá, Con-Dono! 👑",                   "alto"),
+    "[DG] Diretor Geral":           ("Diretor Geral",      "À vontade, Diretor Geral! 🏅",         "alto"),
+    "[VDA] Vice-diretor-geral":     ("Vice-Diretor",       "À vontade, Vice-Diretor! 🏅",          "alto"),
+    "[M] Maneger":                  ("Manager",            "À vontade, Manager! 🏅",               "alto"),
+    "[MAL] Marechal":               ("Marechal",           "Sentido, Marechal! 🎖️",               "alto"),
+    "[GEN-E] General de Exército":  ("General de Exército","À vontade, General de Exército! ⭐⭐⭐⭐","alto"),
+    "[GEN-D] General de Divisão":   ("General de Divisão", "À vontade, General de Divisão! ⭐⭐⭐", "alto"),
+    "[GEN-B] General de brigada":   ("General de Brigada", "À vontade, General de Brigada! ⭐⭐",  "alto"),
+    "[GEN] Generais":               ("General",            "À vontade, General! ⭐",               "alto"),
+    "[CEL] Coronel":                ("Coronel",            "À vontade, Coronel! 🔴",               "alto"),
+    "[T-CEL] Tenente Coronel":      ("Tenente-Coronel",    "À vontade, Tenente-Coronel! 🔴",       "medio"),
+    "[MAJ] Major":                  ("Major",              "À vontade, Major! 🔴",                 "medio"),
+    "[CAP] Capitão":                ("Capitão",            "À vontade, Capitão! 🔴",               "medio"),
+    "[1-TNT] Primeiro Tenente":     ("1º Tenente",         "À vontade, 1º Tenente! 🔴",            "medio"),
+    "[2-TNT] Segundo tenente":      ("2º Tenente",         "À vontade, 2º Tenente! 🔴",            "medio"),
+    "[AAO] Aspirante-A-oficial":    ("Aspirante",          "À vontade, Aspirante! 🔴",             "medio"),
+    "[CDT] Cadete":                 ("Cadete",             "À vontade, Cadete! 🔴",                "medio"),
+    "[OF] Oficiais":                ("Oficial",            "À vontade, Oficial! 🔴",               "medio"),
+    "[SUB-T] Sub Tenente":          ("Subtenente",         "À vontade, Subtenente! 🟢",            "medio"),
+    "[GDS] Graduados":              ("Graduado",           "À vontade, Graduado! 🟢",              "medio"),
+    "[1-SGT] Primeiro sargento":    ("1º Sargento",        "À vontade, 1º Sargento! 🟢",           "medio"),
+    "[2-SGT] Segundo Sargento":     ("2º Sargento",        "À vontade, 2º Sargento! 🟢",           "medio"),
+    "[3-SGT] Terceiro sargento":    ("3º Sargento",        "Sentido, 3º Sargento! 🟢",             "baixo"),
+    "[PRÇ] Praças":                 ("Praça",              "Sentido, Praça! 🟢",                   "baixo"),
+    "[CB] Cabo":                    ("Cabo",               "Sentido, Cabo! 🟢",                    "baixo"),
+    "[SLD] Soldado":                ("Soldado",            "Sentido, Soldado! 🟢",                 "baixo"),
+    "[RCT] Recruta":                ("Recruta",            "Sentido, Recruta! 🫡",                 "baixo"),
+    "Supervisores":                 ("Supervisor",         "Olá, Supervisor! 🛡️",                 "medio"),
+    "[ADM] Administrador":          ("Administrador",      "Olá, Administrador! 🛡️",              "medio"),
+    "[MOD] Moderador":              ("Moderador",          "Olá, Moderador! 🛡️",                  "medio"),
+    "[HLP] Helper":                 ("Helper",             "Olá, Helper! 🛡️",                     "baixo"),
+    "[T-STF] Trial Staff":          ("Trial Staff",        "Olá, Trial Staff! 🛡️",                "baixo"),
+    "[DEV] Developers":             ("Developer",          "Olá, Dev! 💻",                         "medio"),
+    "[B] Builder":                  ("Builder",            "Olá, Builder! 🔨",                     "baixo"),
+    "Verificado":                   ("Cidadão",            "Olá, Cidadão! 🟡",                     "civil"),
 }
 
-function mostrarMsg(id, msg, tipo) {
-  const el = document.getElementById(id);
-  el.textContent = (tipo === 'erro' ? '⚠ ' : '✓ ') + msg;
-  el.style.display = 'block';
-  el.className = 'msg ' + tipo;
-}
+SYSTEM_PROMPT = """Você é o assistente oficial do Exército Brasileiro (EB) no Roblox.
+Responda em português, de forma CURTA e direta (máximo 3 linhas). Nunca mencione sites externos.
+Foque apenas em: patentes, regras, treinamentos e eventos do EB no Roblox.
+Tom: alto=muito formal | medio=respeitoso | baixo=firme e didático | civil=orientar a se verificar via Rover no canal de verificação."""
 
-async function fazerLogin() {
-  const nick = document.getElementById('loginNick').value.trim();
-  const senha = document.getElementById('loginSenha').value;
+def get_cargo_principal(member):
+    nomes = [r.name for r in member.roles]
+    for cargo in HIERARQUIA:
+        if cargo in nomes:
+            return cargo
+    return None
 
-  if (!nick || !senha) { mostrarMsg('erroLogin', 'Preencha todos os campos.', 'erro'); return; }
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
 
-  // SENHA ADMIN SECRETA
-  if (senha === SENHA_ADMIN) {
-    abrirPainel();
-    return;
-  }
+bot = commands.Bot(command_prefix="!", intents=intents)
+historico = {}
 
-  const btn = document.getElementById('btnLogin');
-  btn.disabled = true;
-  btn.textContent = 'ACESSANDO...';
+def perguntar_groq(mensagens):
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
+    payload = {"model": "llama-3.3-70b-versatile", "messages": mensagens, "max_tokens": 150}
+    response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=30)
+    data = response.json()
+    if "choices" not in data:
+        raise Exception(f"Erro da API: {data}")
+    return data["choices"][0]["message"]["content"]
 
-  const email = nick.toLowerCase().replace(/\s+/g,'') + '@eb-rafa.com';
-  const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
+@bot.event
+async def on_ready():
+    print(f"Bot conectado como {bot.user}")
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="pelo Exército Brasileiro 🪖"))
 
-  btn.disabled = false;
-  btn.textContent = '⬡ ACESSAR';
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
 
-  if (error) {
-    mostrarMsg('erroLogin', 'Nick ou senha incorretos.', 'erro');
-    return;
-  }
+    await bot.process_commands(message)
 
-  mostrarMsg('okLogin', 'Acesso concedido! Bem-vindo, ' + nick, 'ok');
-}
+    if not message.content.startswith("!"):
+        return
 
-async function fazerCadastro() {
-  const nick = document.getElementById('cadNick').value.trim();
-  const email = document.getElementById('cadEmail').value.trim();
-  const senha = document.getElementById('cadSenha').value;
-  const senha2 = document.getElementById('cadSenha2').value;
-  const btn = document.getElementById('btnCadastro');
+    pergunta = message.content[1:].strip()
+    if not pergunta:
+        return
+    if pergunta.split()[0].lower() in ["ping", "limpar", "help", "patente"]:
+        return
 
-  if (!nick || !email || !senha || !senha2) { mostrarMsg('erroCadastro', 'Preencha todos os campos.', 'erro'); return; }
-  if (senha !== senha2) { mostrarMsg('erroCadastro', 'As senhas não coincidem.', 'erro'); return; }
-  if (senha.length < 6) { mostrarMsg('erroCadastro', 'Senha mínima de 6 caracteres.', 'erro'); return; }
+    # Anti-flood
+    if verificar_flood(message.author.id):
+        await message.reply("⛔ Devagar, soldado! Aguarde um momento antes de enviar outra mensagem.")
+        return
 
-  btn.disabled = true;
-  btn.textContent = 'CRIANDO...';
+    cargo_nome = get_cargo_principal(message.author)
+    if cargo_nome and cargo_nome in SAUDACOES:
+        patente, saudacao, nivel = SAUDACOES[cargo_nome]
+    else:
+        patente, saudacao, nivel = "Civil", "Olá, Civil! 🔒", "civil"
 
-  const { data, error } = await db.auth.signUp({
-    email,
-    password: senha,
-    options: { data: { nick_roblox: nick } }
-  });
+    canal_id = str(message.channel.id)
+    if canal_id not in historico:
+        historico[canal_id] = []
 
-  if (error) {
-    btn.disabled = false;
-    btn.textContent = '⬡ CRIAR CONTA';
-    mostrarMsg('erroCadastro', error.message.includes('already') ? 'Email já cadastrado.' : 'Erro ao criar conta.', 'erro');
-    return;
-  }
+    historico[canal_id].append({"role": "user", "content": f"[{patente} - nivel:{nivel}] {message.author.display_name}: {pergunta}"})
+    if len(historico[canal_id]) > 6:
+        historico[canal_id] = historico[canal_id][-6:]
 
-  // Salva nick e email na tabela usuarios
-  await db.from('usuarios').insert({ nick, email });
+    async with message.channel.typing():
+        try:
+            mensagens = [{"role": "system", "content": SYSTEM_PROMPT}] + historico[canal_id]
+            texto = perguntar_groq(mensagens)
+            historico[canal_id].append({"role": "assistant", "content": texto})
+            await message.reply(f"{saudacao}\n{texto}")
+        except Exception as e:
+            await message.reply(f"Erro: {e}")
 
-  btn.disabled = false;
-  btn.textContent = '⬡ CRIAR CONTA';
-  mostrarMsg('okCadastro', 'Conta criada! Já pode fazer login.', 'ok');
-}
+@bot.command(name="ping")
+async def ping(ctx):
+    await ctx.send(f"🟢 Online! {round(bot.latency * 1000)}ms | Exército Brasileiro 🪖")
 
-async function loginDiscord() {
-  await db.auth.signInWithOAuth({
-    provider: 'discord',
-    options: { redirectTo: window.location.href }
-  });
-}
+@bot.command(name="patente")
+async def patente_cmd(ctx):
+    cargo_nome = get_cargo_principal(ctx.author)
+    if cargo_nome and cargo_nome in SAUDACOES:
+        patente, saudacao, _ = SAUDACOES[cargo_nome]
+        await ctx.send(f"{saudacao} Sua patente é **{patente}**.")
+    else:
+        await ctx.send("🔒 Você não está verificado! Vá ao canal de verificação e use o bot Rover para vincular sua conta Roblox.")
 
-async function abrirPainel() {
-  document.getElementById('telaLogin').style.display = 'none';
-  document.getElementById('painelAdmin').classList.add('active');
-  await carregarUsuarios();
-}
+@bot.command(name="limpar")
+@commands.has_permissions(manage_messages=True)
+async def limpar(ctx):
+    canal_id = str(ctx.channel.id)
+    if canal_id in historico:
+        historico[canal_id] = []
+    await ctx.send("🗑️ Histórico limpo!")
 
-function sairPainel() {
-  document.getElementById('painelAdmin').classList.remove('active');
-  document.getElementById('telaLogin').style.display = 'flex';
-  document.getElementById('loginSenha').value = '';
-}
-
-async function carregarUsuarios() {
-  // Busca usuários da tabela auth via admin
-  const { data, error } = await db.from('usuarios').select('*').order('criado_em', { ascending: false });
-
-  if (error || !data) {
-    // Se tabela não existe ainda, mostra mensagem
-    document.getElementById('tabelaUsers').innerHTML = '<tr><td colspan="5" class="empty-msg">Nenhum cadastro ainda.</td></tr>';
-    return;
-  }
-
-  todosUsuarios = data;
-  renderTabela(data);
-
-  document.getElementById('totalUsers').textContent = data.length;
-  const hoje = new Date().toISOString().split('T')[0];
-  const cadastrosHoje = data.filter(u => u.criado_em && u.criado_em.startsWith(hoje)).length;
-  document.getElementById('totalHoje').textContent = cadastrosHoje;
-}
-
-function renderTabela(lista) {
-  const tabela = document.getElementById('tabelaUsers');
-  if (!lista.length) {
-    tabela.innerHTML = '<tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr><tr><td colspan="5" class="empty-msg">Nenhum cadastro encontrado.</td></tr>';
-    return;
-  }
-  let html = '<tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr>';
-  lista.forEach((u, i) => {
-    const data = u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—';
-    html += `<tr>
-      <td>${i+1}</td>
-      <td>${u.nick || '—'}</td>
-      <td>${u.email || '—'}</td>
-      <td>${data}</td>
-      <td><span class="badge-ativo">ATIVO</span></td>
-    </tr>`;
-  });
-  tabela.innerHTML = html;
-}
-
-function filtrarTabela(busca) {
-  const filtrado = todosUsuarios.filter(u =>
-    (u.nick || '').toLowerCase().includes(busca.toLowerCase()) ||
-    (u.email || '').toLowerCase().includes(busca.toLowerCase())
-  );
-  renderTabela(filtrado);
-}
-</script>
-</body>
-</html>
+bot.run(DISCORD_TOKEN)
