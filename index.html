@@ -7,319 +7,103 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{min-height:100vh;background:#071a0b;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,60,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,60,0.05) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+body::after{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(0,160,60,0.07) 0%,transparent 70%);pointer-events:none;}
+.container{position:relative;z-index:1;width:100%;max-width:420px;padding:1rem;}
+.card{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.3);padding:2.5rem 2rem;box-shadow:0 0 60px rgba(0,180,60,0.1);}
+.logo-area{text-align:center;margin-bottom:1.5rem;}
+.logo-icon{font-size:2.8rem;display:block;margin-bottom:0.5rem;filter:drop-shadow(0 0 12px rgba(0,255,80,0.5));}
+.logo-title{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:4px;}
+.logo-title span{color:#00cc50;}
+.logo-sub{font-size:0.58rem;letter-spacing:3px;color:rgba(0,200,80,0.4);text-transform:uppercase;margin-top:0.25rem;}
+.status-bar{display:flex;align-items:center;justify-content:center;gap:0.4rem;margin:1rem 0;}
+.status-dot{width:6px;height:6px;background:#00cc50;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.status-text{font-size:0.55rem;letter-spacing:2px;color:rgba(0,200,80,0.5);text-transform:uppercase;}
+.divider-line{height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,80,0.3),transparent);margin:1.25rem 0;}
+.tabs{display:flex;margin-bottom:1.5rem;border:1px solid rgba(0,200,80,0.2);}
+.tab-btn{flex:1;background:transparent;border:none;color:rgba(0,200,80,0.4);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:2px;padding:10px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+.tab-btn.active{background:rgba(0,200,80,0.1);color:#00cc50;border-bottom:2px solid #00cc50;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.form-label{display:block;font-size:0.58rem;letter-spacing:3px;color:#00cc50;text-transform:uppercase;margin-bottom:0.4rem;}
+.form-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(0,200,80,0.2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.85rem;padding:11px 14px;outline:none;transition:all 0.2s;margin-bottom:1rem;}
+.form-input:focus{border-color:#00cc50;background:rgba(0,180,60,0.05);}
+.form-input::placeholder{color:rgba(255,255,255,0.15);}
+.btn-main{width:100%;background:#00cc50;border:none;color:#071a0b;font-family:'Share Tech Mono',monospace;font-size:0.78rem;font-weight:700;letter-spacing:3px;padding:13px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+.btn-main:hover{background:#00ff66;box-shadow:0 4px 20px rgba(0,200,80,0.4);transform:translateY(-1px);}
+.btn-main:disabled{background:rgba(0,200,80,0.3);cursor:not-allowed;transform:none;}
+.ou-text{text-align:center;font-size:0.58rem;color:rgba(255,255,255,0.2);letter-spacing:3px;margin:1.25rem 0;display:flex;align-items:center;gap:0.75rem;}
+.ou-text::before,.ou-text::after{content:'';flex:1;height:1px;background:rgba(0,200,80,0.15);}
+.btn-discord{width:100%;background:#5865F2;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;padding:12px;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:0.6rem;transition:all 0.2s;}
+.btn-discord:hover{background:#4752c4;transform:translateY(-1px);}
+.discord-icon{width:18px;height:18px;fill:white;}
+.msg{font-size:0.65rem;letter-spacing:1px;padding:8px 12px;margin-bottom:1rem;display:none;text-align:center;}
+.msg.erro{background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);color:#ff6666;}
+.msg.ok{background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.3);color:#00cc50;}
+.footer-text{text-align:center;font-size:0.5rem;color:rgba(0,200,80,0.2);letter-spacing:2px;margin-top:1.5rem;text-transform:uppercase;}
 
-body {
-  min-height: 100vh;
-  background: #071a0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Share Tech Mono', monospace;
-  overflow: hidden;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0,180,60,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,180,60,0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(0,160,60,0.07) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 420px;
-  padding: 1rem;
-}
-
-.card {
-  background: rgba(5,25,10,0.97);
-  border: 1px solid rgba(0,200,80,0.3);
-  padding: 2.5rem 2rem;
-  box-shadow: 0 0 60px rgba(0,180,60,0.1);
-}
-
-.logo-area {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.logo-icon {
-  font-size: 2.8rem;
-  display: block;
-  margin-bottom: 0.5rem;
-  filter: drop-shadow(0 0 12px rgba(0,255,80,0.5));
-}
-
-.logo-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 4px;
-}
-
-.logo-title span { color: #00cc50; }
-
-.logo-sub {
-  font-size: 0.58rem;
-  letter-spacing: 3px;
-  color: rgba(0,200,80,0.4);
-  text-transform: uppercase;
-  margin-top: 0.25rem;
-}
-
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin: 1rem 0;
-}
-
-.status-dot {
-  width: 6px; height: 6px;
-  background: #00cc50;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-
-.status-text {
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  color: rgba(0,200,80,0.5);
-  text-transform: uppercase;
-}
-
-.divider-line {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,200,80,0.3), transparent);
-  margin: 1.25rem 0;
-}
-
-/* TABS */
-.tabs {
-  display: flex;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(0,200,80,0.2);
-}
-
-.tab-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: rgba(0,200,80,0.4);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 2px;
-  padding: 10px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s;
-}
-
-.tab-btn.active {
-  background: rgba(0,200,80,0.1);
-  color: #00cc50;
-  border-bottom: 2px solid #00cc50;
-}
-
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-.form-label {
-  display: block;
-  font-size: 0.58rem;
-  letter-spacing: 3px;
-  color: #00cc50;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.form-input {
-  width: 100%;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(0,200,80,0.2);
-  color: #fff;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.85rem;
-  padding: 11px 14px;
-  outline: none;
-  transition: all 0.2s;
-  margin-bottom: 1rem;
-}
-
-.form-input:focus {
-  border-color: #00cc50;
-  background: rgba(0,180,60,0.05);
-  box-shadow: 0 0 10px rgba(0,200,80,0.1);
-}
-
-.form-input::placeholder { color: rgba(255,255,255,0.15); }
-
-.btn-main {
-  width: 100%;
-  background: #00cc50;
-  border: none;
-  color: #071a0b;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  padding: 13px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s;
-}
-
-.btn-main:hover {
-  background: #00ff66;
-  box-shadow: 0 4px 20px rgba(0,200,80,0.4);
-  transform: translateY(-1px);
-}
-
-.btn-main:disabled {
-  background: rgba(0,200,80,0.3);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.ou-text {
-  text-align: center;
-  font-size: 0.58rem;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 3px;
-  margin: 1.25rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.ou-text::before, .ou-text::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(0,200,80,0.15);
-}
-
-.btn-discord {
-  width: 100%;
-  background: #5865F2;
-  border: none;
-  color: #fff;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 2px;
-  padding: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  transition: all 0.2s;
-}
-
-.btn-discord:hover {
-  background: #4752c4;
-  box-shadow: 0 4px 20px rgba(88,101,242,0.4);
-  transform: translateY(-1px);
-}
-
-.discord-icon { width:18px; height:18px; fill:white; }
-
-.msg {
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  padding: 8px 12px;
-  margin-bottom: 1rem;
-  display: none;
-  text-align: center;
-}
-
-.msg.erro {
-  background: rgba(255,50,50,0.1);
-  border: 1px solid rgba(255,50,50,0.3);
-  color: #ff6666;
-}
-
-.msg.ok {
-  background: rgba(0,200,80,0.1);
-  border: 1px solid rgba(0,200,80,0.3);
-  color: #00cc50;
-}
-
-.footer-text {
-  text-align: center;
-  font-size: 0.5rem;
-  color: rgba(0,200,80,0.2);
-  letter-spacing: 2px;
-  margin-top: 1.5rem;
-  text-transform: uppercase;
-}
+/* PAINEL */
+.painel{display:none;position:fixed;inset:0;background:#071a0b;z-index:100;overflow-y:auto;}
+.painel.active{display:block;}
+.painel-nav{background:rgba(5,25,10,0.97);border-bottom:1px solid rgba(0,200,80,0.3);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.painel-titulo{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:3px;color:#00cc50;font-size:1rem;}
+.painel-titulo span{color:#fff;}
+.btn-sair{background:transparent;border:1px solid rgba(255,50,50,0.4);color:#ff6666;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:2px;padding:5px 12px;cursor:pointer;text-transform:uppercase;}
+.painel-body{padding:2rem;max-width:900px;margin:0 auto;}
+.painel-header{margin-bottom:2rem;}
+.painel-h1{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:3px;}
+.painel-sub{font-size:0.6rem;color:rgba(0,200,80,0.4);letter-spacing:2px;text-transform:uppercase;margin-top:0.25rem;}
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
+.stat-card{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.2);padding:1.25rem;}
+.stat-num{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:#00cc50;}
+.stat-label{font-size:0.58rem;letter-spacing:2px;color:rgba(0,200,80,0.4);text-transform:uppercase;}
+.tabela-box{background:rgba(5,25,10,0.97);border:1px solid rgba(0,200,80,0.2);overflow-x:auto;}
+.tabela-header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,200,80,0.2);display:flex;align-items:center;justify-content:space-between;}
+.tabela-titulo{font-size:0.6rem;letter-spacing:3px;color:#00cc50;text-transform:uppercase;}
+.busca{background:rgba(0,0,0,0.4);border:1px solid rgba(0,200,80,0.2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.7rem;padding:5px 10px;outline:none;width:180px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:0.75rem 1.5rem;font-size:0.55rem;letter-spacing:2px;color:rgba(0,200,80,0.4);text-transform:uppercase;border-bottom:1px solid rgba(0,200,80,0.15);}
+td{padding:0.75rem 1.5rem;font-size:0.72rem;border-bottom:1px solid rgba(0,200,80,0.05);color:rgba(160,255,204,0.8);}
+tr:hover td{background:rgba(0,200,80,0.03);}
+.badge-ativo{font-size:0.55rem;padding:2px 8px;background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.3);color:#00cc50;}
+.empty-msg{padding:2rem;text-align:center;font-size:0.7rem;color:rgba(0,200,80,0.3);}
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- LOGIN -->
+<div class="container" id="telaLogin">
   <div class="card">
-
     <div class="logo-area">
       <span class="logo-icon">🪖</span>
       <div class="logo-title">EB DO <span>RAFA</span></div>
       <div class="logo-sub">Sistema Central — Acesso Restrito</div>
     </div>
-
     <div class="status-bar">
       <div class="status-dot"></div>
       <div class="status-text">Sistema Operacional</div>
     </div>
-
     <div class="divider-line"></div>
 
-    <!-- TABS -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="trocarTab('login', this)">Entrar</button>
-      <button class="tab-btn" onclick="trocarTab('cadastro', this)">Criar conta</button>
+      <button class="tab-btn active" onclick="trocarTab('login',this)">Entrar</button>
+      <button class="tab-btn" onclick="trocarTab('cadastro',this)">Criar conta</button>
     </div>
 
     <!-- LOGIN -->
     <div class="tab-content active" id="tab-login">
       <div class="msg erro" id="erroLogin"></div>
       <div class="msg ok" id="okLogin"></div>
-
       <label class="form-label">Nick do Roblox</label>
       <input type="text" class="form-input" id="loginNick" placeholder="SeuNickAqui">
-
       <label class="form-label">Senha</label>
       <input type="password" class="form-input" id="loginSenha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()">
-
       <button class="btn-main" id="btnLogin" onclick="fazerLogin()">⬡ ACESSAR</button>
-
       <div class="ou-text">LOGIN RÁPIDO</div>
-
       <button class="btn-discord" onclick="loginDiscord()">
-        <svg class="discord-icon" viewBox="0 0 71 55">
-          <path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.7a40.3 40.3 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.3 0A39.5 39.5 0 0 0 25.5.7 58.5 58.5 0 0 0 10.8 5C1.6 18.7-1 32 .3 45.1a59 59 0 0 0 18 9.1 44.7 44.7 0 0 0 3.9-6.3 38.4 38.4 0 0 1-6.1-2.9l1.5-1.1a42.2 42.2 0 0 0 35.9 0l1.5 1.1a38.4 38.4 0 0 1-6.1 2.9 44.4 44.4 0 0 0 3.9 6.3 58.8 58.8 0 0 0 18-9.1C72.4 29.8 68.3 16.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.5 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z"/>
-        </svg>
+        <svg class="discord-icon" viewBox="0 0 71 55"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.7a40.3 40.3 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.3 0A39.5 39.5 0 0 0 25.5.7 58.5 58.5 0 0 0 10.8 5C1.6 18.7-1 32 .3 45.1a59 59 0 0 0 18 9.1 44.7 44.7 0 0 0 3.9-6.3 38.4 38.4 0 0 1-6.1-2.9l1.5-1.1a42.2 42.2 0 0 0 35.9 0l1.5 1.1a38.4 38.4 0 0 1-6.1 2.9 44.4 44.4 0 0 0 3.9 6.3 58.8 58.8 0 0 0 18-9.1C72.4 29.8 68.3 16.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.5 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z"/></svg>
         ENTRAR COM DISCORD
       </button>
     </div>
@@ -328,33 +112,52 @@ body::after {
     <div class="tab-content" id="tab-cadastro">
       <div class="msg erro" id="erroCadastro"></div>
       <div class="msg ok" id="okCadastro"></div>
-
       <label class="form-label">Nick do Roblox</label>
       <input type="text" class="form-input" id="cadNick" placeholder="SeuNickAqui">
-
       <label class="form-label">Email</label>
       <input type="email" class="form-input" id="cadEmail" placeholder="seuemail@gmail.com">
-
       <label class="form-label">Senha</label>
       <input type="password" class="form-input" id="cadSenha" placeholder="Mínimo 6 caracteres">
-
       <label class="form-label">Confirmar Senha</label>
       <input type="password" class="form-input" id="cadSenha2" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')fazerCadastro()">
-
       <button class="btn-main" id="btnCadastro" onclick="fazerCadastro()">⬡ CRIAR CONTA</button>
-
-      <div class="ou-text">OU</div>
-
-      <button class="btn-discord" onclick="loginDiscord()">
-        <svg class="discord-icon" viewBox="0 0 71 55">
-          <path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.7a40.3 40.3 0 0 0-1.8 3.6 54.2 54.2 0 0 0-16.3 0A39.5 39.5 0 0 0 25.5.7 58.5 58.5 0 0 0 10.8 5C1.6 18.7-1 32 .3 45.1a59 59 0 0 0 18 9.1 44.7 44.7 0 0 0 3.9-6.3 38.4 38.4 0 0 1-6.1-2.9l1.5-1.1a42.2 42.2 0 0 0 35.9 0l1.5 1.1a38.4 38.4 0 0 1-6.1 2.9 44.4 44.4 0 0 0 3.9 6.3 58.8 58.8 0 0 0 18-9.1C72.4 29.8 68.3 16.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.5 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z"/>
-        </svg>
-        CADASTRAR COM DISCORD
-      </button>
     </div>
 
     <div class="footer-text">EB DO RAFA © 2026 — Acesso monitorado</div>
+  </div>
+</div>
 
+<!-- PAINEL SECRETO -->
+<div class="painel" id="painelAdmin">
+  <div class="painel-nav">
+    <div class="painel-titulo">⬡ PAINEL <span>ADMIN</span></div>
+    <button class="btn-sair" onclick="sairPainel()">✕ SAIR</button>
+  </div>
+  <div class="painel-body">
+    <div class="painel-header">
+      <div class="painel-h1">PAINEL DE CONTROLE</div>
+      <div class="painel-sub">// Acesso restrito — EB do Rafa</div>
+    </div>
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="stat-num" id="totalUsers">0</div>
+        <div class="stat-label">Total de Cadastros</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="totalHoje">0</div>
+        <div class="stat-label">Cadastros Hoje</div>
+      </div>
+    </div>
+    <div class="tabela-box">
+      <div class="tabela-header">
+        <span class="tabela-titulo">// TODOS OS USUÁRIOS</span>
+        <input type="text" class="busca" placeholder="Buscar..." oninput="filtrarTabela(this.value)">
+      </div>
+      <table id="tabelaUsers">
+        <tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr>
+        <tr><td colspan="5" class="empty-msg">Carregando...</td></tr>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -364,6 +167,9 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const SENHA_ADMIN = '4kebdev';
+let todosUsuarios = [];
+
 function trocarTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -371,69 +177,58 @@ function trocarTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
-function mostrarErro(id, msg) {
+function mostrarMsg(id, msg, tipo) {
   const el = document.getElementById(id);
-  el.textContent = '⚠ ' + msg;
+  el.textContent = (tipo === 'erro' ? '⚠ ' : '✓ ') + msg;
   el.style.display = 'block';
-  el.className = 'msg erro';
-}
-
-function mostrarOk(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = '✓ ' + msg;
-  el.style.display = 'block';
-  el.className = 'msg ok';
-}
-
-function limparMsgs() {
-  ['erroLogin','okLogin','erroCadastro','okCadastro'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
+  el.className = 'msg ' + tipo;
 }
 
 async function fazerLogin() {
-  limparMsgs();
   const nick = document.getElementById('loginNick').value.trim();
   const senha = document.getElementById('loginSenha').value;
+
+  if (!nick || !senha) { mostrarMsg('erroLogin', 'Preencha todos os campos.', 'erro'); return; }
+
+  // SENHA ADMIN SECRETA
+  if (senha === SENHA_ADMIN) {
+    abrirPainel();
+    return;
+  }
+
   const btn = document.getElementById('btnLogin');
-
-  if (!nick || !senha) { mostrarErro('erroLogin', 'Preencha todos os campos.'); return; }
-
   btn.disabled = true;
   btn.textContent = 'ACESSANDO...';
 
-  // Login usando nick como email falso
-  const email = nick.toLowerCase().replace(/\s/g,'') + '@eb-rafa.com';
-
+  const email = nick.toLowerCase().replace(/\s+/g,'') + '@eb-rafa.com';
   const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
 
   btn.disabled = false;
   btn.textContent = '⬡ ACESSAR';
 
   if (error) {
-    mostrarErro('erroLogin', 'Nick ou senha incorretos.');
+    mostrarMsg('erroLogin', 'Nick ou senha incorretos.', 'erro');
     return;
   }
 
-  mostrarOk('okLogin', 'Acesso concedido! Redirecionando...');
-  setTimeout(() => { window.location.href = 'painel.html'; }, 1200);
+  mostrarMsg('okLogin', 'Acesso concedido! Bem-vindo, ' + nick, 'ok');
 }
 
 async function fazerCadastro() {
-  limparMsgs();
   const nick = document.getElementById('cadNick').value.trim();
   const email = document.getElementById('cadEmail').value.trim();
   const senha = document.getElementById('cadSenha').value;
   const senha2 = document.getElementById('cadSenha2').value;
   const btn = document.getElementById('btnCadastro');
 
-  if (!nick || !email || !senha || !senha2) { mostrarErro('erroCadastro', 'Preencha todos os campos.'); return; }
-  if (senha !== senha2) { mostrarErro('erroCadastro', 'As senhas não coincidem.'); return; }
-  if (senha.length < 6) { mostrarErro('erroCadastro', 'Senha mínima de 6 caracteres.'); return; }
+  if (!nick || !email || !senha || !senha2) { mostrarMsg('erroCadastro', 'Preencha todos os campos.', 'erro'); return; }
+  if (senha !== senha2) { mostrarMsg('erroCadastro', 'As senhas não coincidem.', 'erro'); return; }
+  if (senha.length < 6) { mostrarMsg('erroCadastro', 'Senha mínima de 6 caracteres.', 'erro'); return; }
 
   btn.disabled = true;
   btn.textContent = 'CRIANDO...';
 
+  // Usa email real do usuário
   const { data, error } = await db.auth.signUp({
     email,
     password: senha,
@@ -444,25 +239,78 @@ async function fazerCadastro() {
   btn.textContent = '⬡ CRIAR CONTA';
 
   if (error) {
-    mostrarErro('erroCadastro', error.message.includes('already') ? 'Este email já está cadastrado.' : 'Erro ao criar conta. Tente novamente.');
+    mostrarMsg('erroCadastro', error.message.includes('already') ? 'Email já cadastrado.' : 'Erro ao criar conta.', 'erro');
     return;
   }
 
-  mostrarOk('okCadastro', 'Conta criada! Verifique seu email para confirmar.');
+  mostrarMsg('okCadastro', 'Conta criada com sucesso! Já pode fazer login.', 'ok');
 }
 
 async function loginDiscord() {
-  const { error } = await db.auth.signInWithOAuth({
+  await db.auth.signInWithOAuth({
     provider: 'discord',
-    options: { redirectTo: window.location.origin + '/painel.html' }
+    options: { redirectTo: window.location.href }
   });
-  if (error) alert('Erro ao conectar com Discord.');
 }
 
-// Verifica se já está logado
-db.auth.getSession().then(({ data }) => {
-  if (data.session) window.location.href = 'painel.html';
-});
+async function abrirPainel() {
+  document.getElementById('telaLogin').style.display = 'none';
+  document.getElementById('painelAdmin').classList.add('active');
+  await carregarUsuarios();
+}
+
+function sairPainel() {
+  document.getElementById('painelAdmin').classList.remove('active');
+  document.getElementById('telaLogin').style.display = 'flex';
+  document.getElementById('loginSenha').value = '';
+}
+
+async function carregarUsuarios() {
+  // Busca usuários da tabela auth via admin
+  const { data, error } = await db.from('usuarios').select('*').order('criado_em', { ascending: false });
+
+  if (error || !data) {
+    // Se tabela não existe ainda, mostra mensagem
+    document.getElementById('tabelaUsers').innerHTML = '<tr><td colspan="5" class="empty-msg">Nenhum cadastro ainda.</td></tr>';
+    return;
+  }
+
+  todosUsuarios = data;
+  renderTabela(data);
+
+  document.getElementById('totalUsers').textContent = data.length;
+  const hoje = new Date().toISOString().split('T')[0];
+  const cadastrosHoje = data.filter(u => u.criado_em && u.criado_em.startsWith(hoje)).length;
+  document.getElementById('totalHoje').textContent = cadastrosHoje;
+}
+
+function renderTabela(lista) {
+  const tabela = document.getElementById('tabelaUsers');
+  if (!lista.length) {
+    tabela.innerHTML = '<tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr><tr><td colspan="5" class="empty-msg">Nenhum cadastro encontrado.</td></tr>';
+    return;
+  }
+  let html = '<tr><th>#</th><th>Nick Roblox</th><th>Email</th><th>Data de Cadastro</th><th>Status</th></tr>';
+  lista.forEach((u, i) => {
+    const data = u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${u.nick || '—'}</td>
+      <td>${u.email || '—'}</td>
+      <td>${data}</td>
+      <td><span class="badge-ativo">ATIVO</span></td>
+    </tr>`;
+  });
+  tabela.innerHTML = html;
+}
+
+function filtrarTabela(busca) {
+  const filtrado = todosUsuarios.filter(u =>
+    (u.nick || '').toLowerCase().includes(busca.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(busca.toLowerCase())
+  );
+  renderTabela(filtrado);
+}
 </script>
 </body>
 </html>
