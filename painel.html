@@ -749,7 +749,7 @@ tr:hover td { background: rgba(0,255,136,0.02); }
 <script>
 const SUPABASE_URL = 'https://fcrzzuyfmdkkelylphdm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjcnp6dXlmbWRra2VseWxwaGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5ODMzMDIsImV4cCI6MjA4OTU1OTMwMn0.NWDkiRgwZ0PwWErchMmhtYhON3Hx3GuDonClfvwf5lc';
-const STAFF_ROLE_ID = '1470615090951880806';
+const ADMINS = ['1443070630294585436', '1240467366408880198'];
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -799,11 +799,11 @@ async function carregarUsuario() {
   const roles = meta.roles || [];
   const cargosEl = document.getElementById('perfilCargos');
 
-  const isStaff = roles.includes(STAFF_ROLE_ID);
+  const isStaff = ADMINS.includes(user.id);
 
   if (roles.length > 0) {
     cargosEl.innerHTML = roles.slice(0, 5).map(r =>
-      `<span class="cargo-badge ${r === STAFF_ROLE_ID ? 'staff' : ''}">${r === STAFF_ROLE_ID ? '🛡️ Staff' : 'Cargo'}</span>`
+      `<span class="cargo-badge ${isStaff ? 'staff' : ''}">${isStaff ? '🛡️ Staff' : 'Membro'}</span>`
     ).join('');
   } else {
     cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
