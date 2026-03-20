@@ -8,567 +8,120 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
-:root {
-  --green: #00ff88;
-  --green-dim: #00cc50;
-  --green-dark: #003320;
-  --bg: #071a0b;
-  --bg2: #0a2410;
-  --border: rgba(0,255,136,0.2);
-  --text: #a0ffcc;
-  --mono: 'Share Tech Mono', monospace;
-  --sans: 'Rajdhani', sans-serif;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:
-    linear-gradient(rgba(0,255,136,0.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,255,136,0.03) 1px,transparent 1px);
-  background-size:40px 40px;
-  pointer-events:none;
-  z-index:0;
-}
-
-/* ===== INTRO ANIMAÇÃO ===== */
-#intro {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.intro-text {
-  font-family: var(--sans);
-  font-size: clamp(2.5rem, 10vw, 5rem);
-  font-weight: 900;
-  letter-spacing: 6px;
-  color: transparent;
-  -webkit-text-stroke: 2px var(--green);
-  text-transform: uppercase;
-  animation: revealText 0.8s ease forwards;
-  opacity: 0;
-}
-
-.intro-text.delay1 { animation-delay: 0.3s; }
-.intro-text.delay2 { animation-delay: 0.6s; color: var(--green); -webkit-text-stroke: 0; text-shadow: 0 0 30px var(--green), 0 0 60px var(--green-dim); }
-.intro-text.delay3 { animation-delay: 0.9s; font-size: clamp(1rem, 4vw, 1.8rem); letter-spacing: 10px; color: rgba(0,255,136,0.5); -webkit-text-stroke: 0; }
-
-@keyframes revealText {
-  from { opacity:0; transform: translateY(20px); }
-  to { opacity:1; transform: translateY(0); }
-}
-
-.intro-bar {
-  width: 200px;
-  height: 2px;
-  background: var(--bg2);
-  margin-top: 1rem;
-  opacity: 0;
-  animation: revealText 0.5s ease 1.2s forwards;
-}
-
-.intro-bar-fill {
-  height: 100%;
-  background: var(--green);
-  box-shadow: 0 0 10px var(--green);
-  animation: barFill 1.5s ease 1.3s forwards;
-  width: 0;
-}
-
-@keyframes barFill { to { width: 100%; } }
-
-/* ===== NAV ===== */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(7,26,11,0.95);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1.5rem;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  backdrop-filter: blur(10px);
-}
-
-.nav-logo {
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 3px;
-  color: var(--green);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-dot {
-  width: 7px; height: 7px;
-  background: var(--green);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--green);
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-
-.nav-right { display: flex; align-items: center; gap: 1rem; }
-
-.nav-user {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.7rem;
-  color: var(--text);
-}
-
-.nav-avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--green);
-  object-fit: cover;
-}
-
-.nav-avatar-placeholder {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--green);
-  background: var(--bg2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-}
-
-.hamburger {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 4px;
-}
-
-.hamburger span {
-  display: block;
-  width: 22px; height: 2px;
-  background: var(--green);
-  transition: all 0.3s;
-}
-
-/* ===== SIDEBAR ===== */
-.sidebar {
-  position: fixed;
-  top: 0; right: -280px;
-  width: 280px; height: 100vh;
-  background: rgba(7,26,11,0.98);
-  border-left: 1px solid var(--border);
-  z-index: 200;
-  transition: right 0.3s ease;
-  padding: 5rem 0 2rem;
-  backdrop-filter: blur(20px);
-}
-
-.sidebar.open { right: 0; }
-
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 199;
-}
-
-.sidebar-overlay.active { display: block; }
-
-.sidebar-title {
-  font-size: 0.55rem;
-  letter-spacing: 4px;
-  color: rgba(0,255,136,0.3);
-  text-transform: uppercase;
-  padding: 0 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 1.5rem;
-  font-size: 0.78rem;
-  color: rgba(160,255,204,0.6);
-  cursor: pointer;
-  transition: all 0.2s;
-  border-left: 2px solid transparent;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.sidebar-item:hover, .sidebar-item.active {
-  color: var(--green);
-  border-left-color: var(--green);
-  background: rgba(0,255,136,0.05);
-}
-
-.sidebar-item .icon { font-size: 1.1rem; width: 24px; }
-
-.sidebar-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 1rem 1.5rem;
-}
-
-.sidebar-logout {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 1.5rem;
-  font-size: 0.78rem;
-  color: rgba(255,80,80,0.6);
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  position: absolute;
-  bottom: 2rem;
-  width: 100%;
-}
-
-.sidebar-logout:hover { color: #ff5050; }
-
-/* ===== MAIN ===== */
-main {
-  position: relative;
-  z-index: 1;
-  padding: 72px 1.5rem 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* ===== PERFIL ===== */
-.perfil-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.perfil-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 100%;
-  background: var(--green);
-}
-
-.perfil-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  border: 3px solid var(--green);
-  box-shadow: 0 0 20px rgba(0,255,136,0.3);
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.perfil-avatar-placeholder {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  border: 3px solid var(--green);
-  box-shadow: 0 0 20px rgba(0,255,136,0.3);
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.perfil-info { flex: 1; }
-
-.perfil-nome {
-  font-family: var(--sans);
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 2px;
-  margin-bottom: 0.25rem;
-}
-
-.perfil-tag {
-  font-size: 0.6rem;
-  color: rgba(160,255,204,0.4);
-  letter-spacing: 2px;
-  margin-bottom: 0.75rem;
-}
-
-.perfil-cargos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.cargo-badge {
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  padding: 2px 8px;
-  border: 1px solid rgba(0,255,136,0.3);
-  color: var(--green);
-  background: rgba(0,255,136,0.05);
-  text-transform: uppercase;
-}
-
-.cargo-badge.staff {
-  border-color: rgba(255,215,0,0.4);
-  color: #ffd700;
-  background: rgba(255,215,0,0.05);
-}
-
-/* ===== STATS ===== */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1rem;
-  text-align: center;
-}
-
-.stat-num {
-  font-family: var(--sans);
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--green);
-}
-
-.stat-label {
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  color: rgba(160,255,204,0.4);
-  text-transform: uppercase;
-}
-
-/* ===== TABS CONTEÚDO ===== */
-.content-tab { display: none; }
-.content-tab.active { display: block; }
-
-.tab-title {
-  font-family: var(--sans);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
-
-.tab-sub {
-  font-size: 0.58rem;
-  color: rgba(0,255,136,0.4);
-  letter-spacing: 2px;
-  margin-bottom: 1.5rem;
-}
-
-/* Caixas de conteúdo */
-.content-box {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.box-title {
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  color: var(--green);
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-/* Lista de itens */
-.list-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(0,255,136,0.05);
-  font-size: 0.75rem;
-}
-
-.list-item:last-child { border-bottom: none; }
-
-.list-num {
-  color: var(--green);
-  font-size: 0.65rem;
-  min-width: 20px;
-  margin-top: 1px;
-}
-
-/* Formulário de relatório */
-.form-label {
-  display: block;
-  font-size: 0.55rem;
-  letter-spacing: 3px;
-  color: var(--green);
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.form-input {
-  width: 100%;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color 0.2s;
-  margin-bottom: 1rem;
-}
-
-.form-input:focus { border-color: var(--green); }
-.form-input::placeholder { color: rgba(255,255,255,0.15); }
-
-select.form-input { cursor: pointer; }
-textarea.form-input { min-height: 100px; resize: vertical; }
-
-.btn-enviar {
-  background: var(--green);
-  border: none;
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 3px;
-  padding: 12px 24px;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: 700;
-  transition: all 0.2s;
-}
-
-.btn-enviar:hover { background: #00ff66; transform: translateY(-1px); }
-
-/* ===== PAINEL STAFF ===== */
-.staff-badge {
-  background: rgba(255,215,0,0.1);
-  border: 1px solid rgba(255,215,0,0.3);
-  color: #ffd700;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  padding: 6px 16px;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  text-align: left;
-  padding: 0.6rem 1rem;
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  color: rgba(0,255,136,0.4);
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--border);
-}
-
-td {
-  padding: 0.6rem 1rem;
-  font-size: 0.7rem;
-  border-bottom: 1px solid rgba(0,255,136,0.05);
-}
-
-tr:hover td { background: rgba(0,255,136,0.02); }
-
-.btn-action {
-  background: none;
-  border: 1px solid;
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  padding: 3px 8px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s;
-  margin-right: 4px;
-}
-
-.btn-ban { border-color: rgba(255,80,80,0.4); color: #ff5050; }
-.btn-ban:hover { background: rgba(255,80,80,0.1); }
-.btn-promover { border-color: rgba(0,255,136,0.4); color: var(--green); }
-.btn-promover:hover { background: rgba(0,255,136,0.1); }
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 2rem; right: 1.5rem;
-  background: var(--bg2);
-  border: 1px solid var(--green);
-  color: var(--green);
-  font-size: 0.7rem;
-  letter-spacing: 1px;
-  padding: 10px 16px;
-  z-index: 999;
-  display: none;
-}
-.toast.active { display: block; animation: slideIn 0.3s ease; }
-@keyframes slideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+:root{--green:#00ff88;--green-dim:#00cc50;--bg:#071a0b;--bg2:#0a2410;--border:rgba(0,255,136,0.2);--text:#a0ffcc;--mono:'Share Tech Mono',monospace;--sans:'Rajdhani',sans-serif;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* INTRO */
+#intro{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+.intro-text{font-family:var(--sans);font-size:clamp(2rem,8vw,4rem);font-weight:900;letter-spacing:6px;color:transparent;-webkit-text-stroke:2px var(--green);text-transform:uppercase;animation:revealText 0.8s ease forwards;opacity:0;}
+.intro-text.d1{animation-delay:0.3s;}
+.intro-text.d2{animation-delay:0.6s;color:var(--green);-webkit-text-stroke:0;text-shadow:0 0 30px var(--green);}
+.intro-text.d3{animation-delay:0.9s;font-size:clamp(0.8rem,3vw,1.2rem);letter-spacing:8px;color:rgba(0,255,136,0.5);-webkit-text-stroke:0;}
+@keyframes revealText{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.intro-bar{width:200px;height:2px;background:var(--bg2);margin-top:1rem;opacity:0;animation:revealText 0.5s ease 1.2s forwards;}
+.intro-bar-fill{height:100%;background:var(--green);box-shadow:0 0 10px var(--green);animation:barFill 2s ease 1.3s forwards;width:0;}
+@keyframes barFill{to{width:100%;}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,26,11,0.95);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(10px);}
+.nav-logo{font-family:var(--sans);font-weight:700;font-size:1rem;letter-spacing:3px;color:var(--green);display:flex;align-items:center;gap:0.5rem;}
+.nav-dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.nav-user{display:flex;align-items:center;gap:0.5rem;font-size:0.7rem;}
+.nav-avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--green);object-fit:cover;}
+.hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--green);}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;right:-280px;width:280px;height:100vh;background:rgba(7,26,11,0.98);border-left:1px solid var(--border);z-index:200;transition:right 0.3s ease;padding:5rem 0 2rem;overflow-y:auto;}
+.sidebar.open{right:0;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:199;}
+.overlay.active{display:block;}
+.sidebar-section{padding:0.5rem 1.5rem;font-size:0.55rem;letter-spacing:4px;color:rgba(0,255,136,0.3);text-transform:uppercase;margin-top:1rem;}
+.sidebar-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.5rem;font-size:0.72rem;color:rgba(160,255,204,0.5);cursor:pointer;transition:all 0.2s;border-left:2px solid transparent;letter-spacing:1px;text-transform:uppercase;}
+.sidebar-item:hover,.sidebar-item.active{color:var(--green);border-left-color:var(--green);background:rgba(0,255,136,0.05);}
+.sidebar-item .icon{font-size:1rem;width:22px;}
+.sidebar-divider{height:1px;background:var(--border);margin:0.75rem 1.5rem;}
+.sidebar-logout{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.5rem;font-size:0.72rem;color:rgba(255,80,80,0.5);cursor:pointer;transition:all 0.2s;letter-spacing:1px;text-transform:uppercase;}
+.sidebar-logout:hover{color:#ff5050;}
+
+/* MAIN */
+main{position:relative;z-index:1;padding:72px 1.5rem 2rem;max-width:900px;margin:0 auto;}
+
+/* PERFIL */
+.perfil-card{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.perfil-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--green);}
+.perfil-avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--green);box-shadow:0 0 20px rgba(0,255,136,0.3);object-fit:cover;flex-shrink:0;}
+.perfil-avatar-ph{width:72px;height:72px;border-radius:50%;border:3px solid var(--green);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;}
+.perfil-nome{font-family:var(--sans);font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:0.25rem;}
+.perfil-tag{font-size:0.6rem;color:rgba(160,255,204,0.4);letter-spacing:2px;margin-bottom:0.75rem;}
+.perfil-cargos{display:flex;flex-wrap:wrap;gap:0.4rem;}
+.cargo-badge{font-size:0.55rem;letter-spacing:1px;padding:2px 8px;border:1px solid rgba(0,255,136,0.3);color:var(--green);background:rgba(0,255,136,0.05);text-transform:uppercase;}
+.cargo-badge.staff{border-color:rgba(255,215,0,0.4);color:#ffd700;background:rgba(255,215,0,0.05);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);padding:1rem;text-align:center;}
+.stat-num{font-family:var(--sans);font-size:1.8rem;font-weight:700;color:var(--green);}
+.stat-label{font-size:0.55rem;letter-spacing:2px;color:rgba(160,255,204,0.4);text-transform:uppercase;}
+
+/* TABS */
+.content-tab{display:none;}
+.content-tab.active{display:block;}
+.tab-title{font-family:var(--sans);font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.25rem;}
+.tab-sub{font-size:0.58rem;color:rgba(0,255,136,0.4);letter-spacing:2px;margin-bottom:1.5rem;}
+.content-box{background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin-bottom:1rem;}
+.box-title{font-size:0.6rem;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+.list-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(0,255,136,0.05);font-size:0.75rem;}
+.list-item:last-child{border-bottom:none;}
+.list-num{color:var(--green);font-size:0.65rem;min-width:20px;margin-top:1px;}
+
+/* FORM */
+.form-label{display:block;font-size:0.55rem;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:0.4rem;}
+.form-input{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:#fff;font-family:var(--mono);font-size:0.8rem;padding:10px 12px;outline:none;transition:border-color 0.2s;margin-bottom:1rem;}
+.form-input:focus{border-color:var(--green);}
+.form-input::placeholder{color:rgba(255,255,255,0.15);}
+select.form-input{cursor:pointer;}
+textarea.form-input{min-height:90px;resize:vertical;}
+.btn-enviar{background:var(--green);border:none;color:var(--bg);font-family:var(--mono);font-size:0.72rem;letter-spacing:3px;padding:12px 24px;cursor:pointer;text-transform:uppercase;font-weight:700;transition:all 0.2s;}
+.btn-enviar:hover{background:#00ff66;transform:translateY(-1px);}
+.btn-enviar:disabled{background:rgba(0,255,136,0.3);cursor:not-allowed;transform:none;}
+.msg{font-size:0.65rem;padding:8px 12px;margin-top:0.75rem;display:none;}
+.msg.ok{background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.3);color:#00cc50;}
+.msg.erro{background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);color:#ff6666;}
+
+/* STAFF */
+.staff-badge{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;font-size:0.6rem;letter-spacing:3px;padding:6px 16px;text-align:center;margin-bottom:1.5rem;text-transform:uppercase;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:0.6rem 1rem;font-size:0.55rem;letter-spacing:2px;color:rgba(0,255,136,0.4);text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:0.6rem 1rem;font-size:0.7rem;border-bottom:1px solid rgba(0,255,136,0.05);}
+.btn-action{background:none;border:1px solid;font-family:var(--mono);font-size:0.55rem;padding:3px 8px;cursor:pointer;text-transform:uppercase;margin-right:4px;}
+.btn-ban{border-color:rgba(255,80,80,0.4);color:#ff5050;}
+.btn-promover{border-color:rgba(0,255,136,0.4);color:var(--green);}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:1.5rem;background:var(--bg2);border:1px solid var(--green);color:var(--green);font-size:0.7rem;padding:10px 16px;z-index:999;display:none;}
+.toast.active{display:block;}
 </style>
 </head>
 <body>
 
 <!-- INTRO -->
 <div id="intro">
-  <div class="intro-text delay1">EXÉRCITO BRASILEIRO</div>
-  <div class="intro-text delay2">EB DO RAFA</div>
-  <div class="intro-text delay3">SISTEMA CENTRAL v2.0</div>
+  <div class="intro-text d1">EXÉRCITO BRASILEIRO</div>
+  <div class="intro-text d2">EB DO RAFA</div>
+  <div class="intro-text d3">SISTEMA CENTRAL v2.0</div>
   <div class="intro-bar"><div class="intro-bar-fill"></div></div>
 </div>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">
-    <div class="nav-dot"></div>
-    EB DO RAFA
-  </div>
+  <div class="nav-logo"><div class="nav-dot"></div>EB DO RAFA</div>
   <div class="nav-right">
     <div class="nav-user">
-      <div class="nav-avatar-placeholder" id="navAvatar">🪖</div>
+      <div id="navAvatar" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--green);background:var(--bg2);display:flex;align-items:center;justify-content:center;">🪖</div>
       <span id="navNome">...</span>
     </div>
     <button class="hamburger" onclick="toggleSidebar()">
@@ -578,48 +131,23 @@ tr:hover td { background: rgba(0,255,136,0.02); }
 </nav>
 
 <!-- SIDEBAR -->
-<div class="sidebar-overlay" id="overlay" onclick="fecharSidebar()"></div>
+<div class="overlay" id="overlay" onclick="fecharSidebar()"></div>
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-title">// Menu</div>
-  <div class="sidebar-item active" onclick="trocarTab('perfil', this)">
-    <span class="icon">👤</span> Perfil
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('ficha', this)">
-    <span class="icon">📁</span> Ficha do Membro
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('regras', this)">
-    <span class="icon">📜</span> Regras do Grupo
-  </div>
-  <div class="sidebar-title">// Relatórios</div>
-  <div class="sidebar-item" onclick="trocarTab('rel-treino', this)">
-    <span class="icon">📖</span> Treinamento
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('rel-recrutamento', this)">
-    <span class="icon">🪖</span> Recrutamento
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('rel-advertencia', this)">
-    <span class="icon">⚠️</span> Advertência
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('rel-rebaixamento', this)">
-    <span class="icon">📉</span> Rebaixamento
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('rel-banimento', this)">
-    <span class="icon">🚫</span> Banimento
-  </div>
-  <div class="sidebar-item" onclick="trocarTab('rel-exilio', this)">
-    <span class="icon">🏴‍☠️</span> Exílio
-  </div>
-  <div class="sidebar-title">// Histórico</div>
-  <div class="sidebar-item" onclick="trocarTab('punicoes', this)">
-    <span class="icon">📋</span> Punições
-  </div>
+  <div class="sidebar-section">// Geral</div>
+  <div class="sidebar-item active" onclick="trocarTab('perfil',this)"><span class="icon">👤</span>Perfil</div>
+  <div class="sidebar-item" onclick="trocarTab('ficha',this)"><span class="icon">📁</span>Ficha do Membro</div>
+  <div class="sidebar-item" onclick="trocarTab('regras',this)"><span class="icon">📜</span>Regras do Grupo</div>
+  <div class="sidebar-item" onclick="trocarTab('punicoes',this)"><span class="icon">📋</span>Histórico de Punições</div>
+  <div class="sidebar-section">// Relatórios</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-treino',this)"><span class="icon">📖</span>Treinamento</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-recrutamento',this)"><span class="icon">🪖</span>Recrutamento</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-advertencia',this)"><span class="icon">⚠️</span>Advertência</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-rebaixamento',this)"><span class="icon">📉</span>Rebaixamento</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-banimento',this)"><span class="icon">🚫</span>Banimento</div>
+  <div class="sidebar-item" onclick="trocarTab('rel-exilio',this)"><span class="icon">🏴‍☠️</span>Exílio</div>
   <div class="sidebar-divider"></div>
-  <div class="sidebar-item" id="staffMenuItem" style="display:none;" onclick="trocarTab('staff', this)">
-    <span class="icon">🛡️</span> Painel Staff
-  </div>
-  <div class="sidebar-logout" onclick="fazerLogout()">
-    <span class="icon">🚪</span> Sair
-  </div>
+  <div class="sidebar-item" id="staffMenuItem" style="display:none;" onclick="trocarTab('staff',this)"><span class="icon">🛡️</span>Painel Staff</div>
+  <div class="sidebar-logout" onclick="fazerLogout()"><span class="icon">🚪</span>Sair</div>
 </div>
 
 <!-- MAIN -->
@@ -628,162 +156,17 @@ tr:hover td { background: rgba(0,255,136,0.02); }
   <!-- PERFIL -->
   <div class="content-tab active" id="tab-perfil">
     <div class="perfil-card">
-      <div class="perfil-avatar-placeholder" id="perfilAvatar">🪖</div>
-      <div class="perfil-info">
+      <div class="perfil-avatar-ph" id="perfilAvatar">🪖</div>
+      <div>
         <div class="perfil-nome" id="perfilNome">Carregando...</div>
-        <div class="perfil-tag" id="perfilTag">#0000</div>
-        <div class="perfil-cargos" id="perfilCargos">
-          <span class="cargo-badge">Carregando...</span>
-        </div>
+        <div class="perfil-tag" id="perfilTag">Discord</div>
+        <div class="perfil-cargos" id="perfilCargos"><span class="cargo-badge">Membro</span></div>
       </div>
     </div>
-
     <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num">0</div>
-        <div class="stat-label">Treinos</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">0</div>
-        <div class="stat-label">Relatórios</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">0</div>
-        <div class="stat-label">Punições</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TREINO -->
-  <div class="content-tab" id="tab-rel-treino">
-    <div class="tab-title">Relatório de Treinamento</div>
-    <div class="tab-sub">// 📖 Envie para o canal de treinos</div>
-    <div class="content-box">
-      <label class="form-label">👤 Instrutor</label>
-      <input type="text" class="form-input" id="treino-instrutor" placeholder="Seu nick">
-      <label class="form-label">👥 Treinado(s)</label>
-      <input type="text" class="form-input" id="treino-treinados" placeholder="Nick1, Nick2...">
-      <label class="form-label">📅 Data e Hora</label>
-      <input type="datetime-local" class="form-input" id="treino-data">
-      <label class="form-label">📊 Status</label>
-      <select class="form-input" id="treino-status">
-        <option>Aprovado</option>
-        <option>Reprovado</option>
-        <option>Aprovado/Reprovado</option>
-      </select>
-      <label class="form-label">📝 Observações</label>
-      <textarea class="form-input" id="treino-obs" placeholder="Observações..."></textarea>
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="treino-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('treino')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-treino" style="margin-top:1rem;"></div>
-    </div>
-  </div>
-
-  <!-- RECRUTAMENTO -->
-  <div class="content-tab" id="tab-rel-recrutamento">
-    <div class="tab-title">Relatório de Recrutamento</div>
-    <div class="tab-sub">// 🪖 Envie para o canal de recrutamento</div>
-    <div class="content-box">
-      <label class="form-label">👤 Recrutado</label>
-      <input type="text" class="form-input" id="rec-recrutado" placeholder="Nick do recrutado">
-      <label class="form-label">👮 Recrutador</label>
-      <input type="text" class="form-input" id="rec-recrutador" placeholder="Seu nick">
-      <label class="form-label">📅 Data</label>
-      <input type="date" class="form-input" id="rec-data">
-      <label class="form-label">📝 Observações</label>
-      <textarea class="form-input" id="rec-obs" placeholder="Observações..."></textarea>
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="rec-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('recrutamento')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-recrutamento" style="margin-top:1rem;"></div>
-    </div>
-  </div>
-
-  <!-- ADVERTÊNCIA -->
-  <div class="content-tab" id="tab-rel-advertencia">
-    <div class="tab-title">Relatório de Advertência</div>
-    <div class="tab-sub">// ⚠️ Envie para o canal de advertências</div>
-    <div class="content-box">
-      <label class="form-label">👤 Jogador</label>
-      <input type="text" class="form-input" id="adv-jogador" placeholder="Nick do jogador">
-      <label class="form-label">📝 Motivo</label>
-      <textarea class="form-input" id="adv-motivo" placeholder="Motivo da advertência..."></textarea>
-      <label class="form-label">🔢 Grau da Advertência</label>
-      <input type="text" class="form-input" id="adv-grau" placeholder="ex: 1/3">
-      <label class="form-label">📅 Data</label>
-      <input type="date" class="form-input" id="adv-data">
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="adv-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('advertencia')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-advertencia" style="margin-top:1rem;"></div>
-    </div>
-  </div>
-
-  <!-- REBAIXAMENTO -->
-  <div class="content-tab" id="tab-rel-rebaixamento">
-    <div class="tab-title">Relatório de Rebaixamento</div>
-    <div class="tab-sub">// 📉 Envie para o canal de rebaixamentos</div>
-    <div class="content-box">
-      <label class="form-label">👤 Usuário</label>
-      <input type="text" class="form-input" id="reb-usuario" placeholder="Nick do usuário">
-      <label class="form-label">⬆️ Cargo Anterior</label>
-      <input type="text" class="form-input" id="reb-cargo-anterior" placeholder="Cargo anterior">
-      <label class="form-label">⬇️ Novo Cargo</label>
-      <input type="text" class="form-input" id="reb-novo-cargo" placeholder="Novo cargo">
-      <label class="form-label">📝 Motivo</label>
-      <textarea class="form-input" id="reb-motivo" placeholder="Motivo do rebaixamento..."></textarea>
-      <label class="form-label">📅 Data</label>
-      <input type="date" class="form-input" id="reb-data">
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="reb-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('rebaixamento')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-rebaixamento" style="margin-top:1rem;"></div>
-    </div>
-  </div>
-
-  <!-- BANIMENTO -->
-  <div class="content-tab" id="tab-rel-banimento">
-    <div class="tab-title">Relatório de Banimento</div>
-    <div class="tab-sub">// 🚫 Envie para o canal de banimentos</div>
-    <div class="content-box">
-      <label class="form-label">👤 Jogador</label>
-      <input type="text" class="form-input" id="ban-jogador" placeholder="Nick do jogador">
-      <label class="form-label">📝 Motivo</label>
-      <textarea class="form-input" id="ban-motivo" placeholder="Motivo do banimento..."></textarea>
-      <label class="form-label">⏳ Tempo</label>
-      <input type="text" class="form-input" id="ban-tempo" placeholder="ex: Permanente ou 7 dias">
-      <label class="form-label">📅 Data</label>
-      <input type="date" class="form-input" id="ban-data">
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="ban-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('banimento')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-banimento" style="margin-top:1rem;"></div>
-    </div>
-  </div>
-
-  <!-- EXÍLIO -->
-  <div class="content-tab" id="tab-rel-exilio">
-    <div class="tab-title">Relatório de Exílio</div>
-    <div class="tab-sub">// 🏴‍☠️ Envie para o canal de exílio</div>
-    <div class="content-box">
-      <label class="form-label">👤 Exilado</label>
-      <input type="text" class="form-input" id="ex-exilado" placeholder="Nick do exilado">
-      <label class="form-label">📝 Motivo</label>
-      <textarea class="form-input" id="ex-motivo" placeholder="Motivo do exílio..."></textarea>
-      <label class="form-label">⛓️ Tipo</label>
-      <select class="form-input" id="ex-tipo">
-        <option>Permanente</option>
-        <option>Temporário</option>
-      </select>
-      <label class="form-label">📅 Data</label>
-      <input type="date" class="form-input" id="ex-data">
-      <label class="form-label">👮 Responsável</label>
-      <input type="text" class="form-input" id="ex-responsavel" placeholder="Seu nick">
-      <label class="form-label">📸 Prova (imagem)</label>
-      <input type="file" class="form-input" id="ex-img" accept="image/*">
-      <button class="btn-enviar" onclick="enviarRelatorio('exilio')">⬡ ENVIAR RELATÓRIO</button>
-      <div class="msg ok" id="msg-exilio" style="margin-top:1rem;"></div>
+      <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">Treinos</div></div>
+      <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">Relatórios</div></div>
+      <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">Punições</div></div>
     </div>
   </div>
 
@@ -792,39 +175,9 @@ tr:hover td { background: rgba(0,255,136,0.02); }
     <div class="tab-title">Ficha do Membro</div>
     <div class="tab-sub">// Suas informações no EB</div>
     <div class="content-box">
-      <div class="box-title">// Dados Pessoais</div>
-      <div class="list-item">
-        <span class="list-num">▶</span>
-        <div><strong style="color:#fff;">Nome no Discord:</strong> <span id="fichaNome">—</span></div>
-      </div>
-      <div class="list-item">
-        <span class="list-num">▶</span>
-        <div><strong style="color:#fff;">Patente Atual:</strong> <span style="color:var(--green);">Verificado</span></div>
-      </div>
-      <div class="list-item">
-        <span class="list-num">▶</span>
-        <div><strong style="color:#fff;">Divisão:</strong> <span>—</span></div>
-      </div>
-      <div class="list-item">
-        <span class="list-num">▶</span>
-        <div><strong style="color:#fff;">Treinos Completados:</strong> <span style="color:var(--green);">0</span></div>
-      </div>
-      <div class="list-item">
-        <span class="list-num">▶</span>
-        <div><strong style="color:#fff;">Status:</strong> <span style="color:var(--green);">ATIVO</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PUNIÇÕES -->
-  <div class="content-tab" id="tab-punicoes">
-    <div class="tab-title">Histórico de Punições</div>
-    <div class="tab-sub">// Seu registro disciplinar</div>
-    <div class="content-box">
-      <div class="box-title">// Punições Registradas</div>
-      <div style="text-align:center;padding:2rem;font-size:0.7rem;color:rgba(0,255,136,0.3);">
-        Nenhuma punição registrada. ✓
-      </div>
+      <div class="list-item"><span class="list-num">▶</span><div><strong style="color:#fff;">Nome:</strong> <span id="fichaNome">—</span></div></div>
+      <div class="list-item"><span class="list-num">▶</span><div><strong style="color:#fff;">Patente:</strong> <span id="fichaPatente" style="color:var(--green);">—</span></div></div>
+      <div class="list-item"><span class="list-num">▶</span><div><strong style="color:#fff;">Status:</strong> <span style="color:var(--green);">ATIVO</span></div></div>
     </div>
   </div>
 
@@ -833,17 +186,151 @@ tr:hover td { background: rgba(0,255,136,0.02); }
     <div class="tab-title">Regras do Grupo</div>
     <div class="tab-sub">// Regulamento oficial do EB</div>
     <div class="content-box">
-      <div class="box-title">// Conduta Geral</div>
       <div class="list-item"><span class="list-num">01</span><div>Respeitar todos os membros independente de patente.</div></div>
       <div class="list-item"><span class="list-num">02</span><div>Não usar exploits, hacks ou qualquer trapaça — punição imediata.</div></div>
       <div class="list-item"><span class="list-num">03</span><div>Usar uniforme correto dentro das bases militares.</div></div>
       <div class="list-item"><span class="list-num">04</span><div>Obedecer ordens de superiores hierárquicos.</div></div>
       <div class="list-item"><span class="list-num">05</span><div>Não matar aliados — teamkill é punível.</div></div>
-      <div class="list-item"><span class="list-num">06</span><div>Participar de pelo menos 1 evento por semana para não ser inativado.</div></div>
+      <div class="list-item"><span class="list-num">06</span><div>Participar de pelo menos 1 evento por semana.</div></div>
       <div class="list-item"><span class="list-num">07</span><div>Comportamento inadequado no Discord resulta em suspensão.</div></div>
       <div class="list-item"><span class="list-num">08</span><div>Proibido vazar informações internas do grupo.</div></div>
       <div class="list-item"><span class="list-num">09</span><div>Respeitar os inimigos capturados.</div></div>
-      <div class="list-item"><span class="list-num">10</span><div>Pedidos de promoção devem ser feitos pelo canal correto no Discord.</div></div>
+      <div class="list-item"><span class="list-num">10</span><div>Pedidos de promoção pelo canal correto no Discord.</div></div>
+    </div>
+  </div>
+
+  <!-- PUNIÇÕES -->
+  <div class="content-tab" id="tab-punicoes">
+    <div class="tab-title">Histórico de Punições</div>
+    <div class="tab-sub">// Seu registro disciplinar</div>
+    <div class="content-box">
+      <div style="text-align:center;padding:2rem;font-size:0.7rem;color:rgba(0,255,136,0.3);">Nenhuma punição registrada. ✓</div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO TREINO -->
+  <div class="content-tab" id="tab-rel-treino">
+    <div class="tab-title">Relatório de Treinamento</div>
+    <div class="tab-sub">// 📖 Será enviado ao canal de treinos</div>
+    <div class="content-box">
+      <label class="form-label">👤 Instrutor</label>
+      <input type="text" class="form-input" id="t-instrutor" placeholder="Seu nick">
+      <label class="form-label">👥 Treinado(s)</label>
+      <input type="text" class="form-input" id="t-treinados" placeholder="Nick1, Nick2...">
+      <label class="form-label">📅 Data e Hora</label>
+      <input type="datetime-local" class="form-input" id="t-data">
+      <label class="form-label">📊 Status</label>
+      <select class="form-input" id="t-status"><option>Aprovado</option><option>Reprovado</option><option>Aprovado/Reprovado</option></select>
+      <label class="form-label">📝 Observações</label>
+      <textarea class="form-input" id="t-obs" placeholder="Observações..."></textarea>
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="t-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('treino')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-treino"></div>
+    </div>
+  </div>
+
+  <!-- RECRUTAMENTO -->
+  <div class="content-tab" id="tab-rel-recrutamento">
+    <div class="tab-title">Relatório de Recrutamento</div>
+    <div class="tab-sub">// 🪖 Será enviado ao canal de recrutamento</div>
+    <div class="content-box">
+      <label class="form-label">👤 Recrutado</label>
+      <input type="text" class="form-input" id="r-recrutado" placeholder="Nick do recrutado">
+      <label class="form-label">👮 Recrutador</label>
+      <input type="text" class="form-input" id="r-recrutador" placeholder="Seu nick">
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="r-data">
+      <label class="form-label">📝 Observações</label>
+      <textarea class="form-input" id="r-obs" placeholder="Observações..."></textarea>
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="r-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('recrutamento')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-recrutamento"></div>
+    </div>
+  </div>
+
+  <!-- ADVERTÊNCIA -->
+  <div class="content-tab" id="tab-rel-advertencia">
+    <div class="tab-title">Relatório de Advertência</div>
+    <div class="tab-sub">// ⚠️ Será enviado ao canal de advertências</div>
+    <div class="content-box">
+      <label class="form-label">👤 Jogador</label>
+      <input type="text" class="form-input" id="a-jogador" placeholder="Nick do jogador">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="a-motivo" placeholder="Motivo..."></textarea>
+      <label class="form-label">🔢 Grau</label>
+      <input type="text" class="form-input" id="a-grau" placeholder="ex: 1/3">
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="a-data">
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="a-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('advertencia')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-advertencia"></div>
+    </div>
+  </div>
+
+  <!-- REBAIXAMENTO -->
+  <div class="content-tab" id="tab-rel-rebaixamento">
+    <div class="tab-title">Relatório de Rebaixamento</div>
+    <div class="tab-sub">// 📉 Será enviado ao canal de rebaixamentos</div>
+    <div class="content-box">
+      <label class="form-label">👤 Usuário</label>
+      <input type="text" class="form-input" id="rb-usuario" placeholder="Nick">
+      <label class="form-label">⬆️ Cargo Anterior</label>
+      <input type="text" class="form-input" id="rb-anterior" placeholder="Cargo anterior">
+      <label class="form-label">⬇️ Novo Cargo</label>
+      <input type="text" class="form-input" id="rb-novo" placeholder="Novo cargo">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="rb-motivo" placeholder="Motivo..."></textarea>
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="rb-data">
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="rb-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('rebaixamento')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-rebaixamento"></div>
+    </div>
+  </div>
+
+  <!-- BANIMENTO -->
+  <div class="content-tab" id="tab-rel-banimento">
+    <div class="tab-title">Relatório de Banimento</div>
+    <div class="tab-sub">// 🚫 Será enviado ao canal de banimentos</div>
+    <div class="content-box">
+      <label class="form-label">👤 Jogador</label>
+      <input type="text" class="form-input" id="b-jogador" placeholder="Nick">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="b-motivo" placeholder="Motivo..."></textarea>
+      <label class="form-label">⏳ Tempo</label>
+      <input type="text" class="form-input" id="b-tempo" placeholder="ex: Permanente ou 7 dias">
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="b-data">
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="b-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('banimento')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-banimento"></div>
+    </div>
+  </div>
+
+  <!-- EXÍLIO -->
+  <div class="content-tab" id="tab-rel-exilio">
+    <div class="tab-title">Relatório de Exílio</div>
+    <div class="tab-sub">// 🏴‍☠️ Será enviado ao canal de exílio</div>
+    <div class="content-box">
+      <label class="form-label">👤 Exilado</label>
+      <input type="text" class="form-input" id="e-exilado" placeholder="Nick">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="e-motivo" placeholder="Motivo..."></textarea>
+      <label class="form-label">⛓️ Tipo</label>
+      <select class="form-input" id="e-tipo"><option>Permanente</option><option>Temporário</option></select>
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="e-data">
+      <label class="form-label">👮 Responsável</label>
+      <input type="text" class="form-input" id="e-resp" placeholder="Seu nick">
+      <label class="form-label">📸 Prova</label>
+      <input type="file" class="form-input" id="e-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviar('exilio')">⬡ ENVIAR</button>
+      <div class="msg" id="msg-exilio"></div>
     </div>
   </div>
 
@@ -854,12 +341,8 @@ tr:hover td { background: rgba(0,255,136,0.02); }
     <div class="staff-badge">⚠ ÁREA RESTRITA — STAFF AUTORIZADO</div>
     <div class="content-box">
       <div class="box-title">// Membros Cadastrados</div>
-      <table>
-        <tr><th>Nick</th><th>Email</th><th>Data</th><th>Ações</th></tr>
-        <tbody id="staffTabela">
-          <tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Carregando...</td></tr>
-        </tbody>
-      </table>
+      <table><tr><th>Nick</th><th>Email</th><th>Data</th><th>Ações</th></tr>
+      <tbody id="staffTabela"><tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Carregando...</td></tr></tbody></table>
     </div>
   </div>
 
@@ -870,116 +353,146 @@ tr:hover td { background: rgba(0,255,136,0.02); }
 <script>
 const SUPABASE_URL = 'https://fcrzzuyfmdkkelylphdm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjcnp6dXlmbWRra2VseWxwaGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5ODMzMDIsImV4cCI6MjA4OTU1OTMwMn0.NWDkiRgwZ0PwWErchMmhtYhON3Hx3GuDonClfvwf5lc';
-const ADMINS = ['1443070630294585436', '1240467366408880198'];
 const BOT_API = 'https://bot-eb-production.up.railway.app';
+const STAFF_ROLE_ID = '1470615090951880806';
+const ADMINS = ['1443070630294585436', '1240467366408880198'];
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Intro e verificação de login
-// Verifica sessão e mostra painel
-async function iniciar() {
-  const { data: { session } } = await db.auth.getSession();
-  const intro = document.getElementById("intro");
-  if (session) {
-    setTimeout(() => {
-      intro.style.transition = "opacity 0.5s ease";
-      intro.style.opacity = "0";
-      setTimeout(() => { intro.style.display = "none"; carregarUsuario(); }, 500);
-    }, 2500);
-  } else {
-    setTimeout(() => { window.location.href = "index.html"; }, 2500);
-  }
-}
-iniciar();
+// Inicia após animação
+window.addEventListener('load', async () => {
+  await new Promise(r => setTimeout(r, 3000));
+  
+  const intro = document.getElementById('intro');
+  intro.style.transition = 'opacity 0.5s';
+  intro.style.opacity = '0';
+  await new Promise(r => setTimeout(r, 500));
+  intro.style.display = 'none';
 
-// Carrega dados do usuário
-async function carregarUsuario() {
   const { data: { session } } = await db.auth.getSession();
-
   if (!session) {
     window.location.href = 'index.html';
     return;
   }
+  carregarUsuario(session);
+});
 
+async function carregarUsuario(session) {
   const user = session.user;
   const meta = user.user_metadata;
-
-  // Nome
   const nome = meta.full_name || meta.name || meta.global_name || 'Soldado';
-  const tag = meta.discriminator ? '#' + meta.discriminator : '';
 
   document.getElementById('perfilNome').textContent = nome;
-  document.getElementById('perfilTag').textContent = tag ? 'Discord ' + tag : 'Discord';
+  document.getElementById('perfilTag').textContent = 'Discord';
   document.getElementById('navNome').textContent = nome;
   document.getElementById('fichaNome').textContent = nome;
 
-  // Avatar
   if (meta.avatar_url || meta.picture) {
-    const avatarUrl = meta.avatar_url || meta.picture;
-    document.getElementById('perfilAvatar').outerHTML = `<img src="${avatarUrl}" class="perfil-avatar" id="perfilAvatar">`;
-    document.getElementById('navAvatar').outerHTML = `<img src="${avatarUrl}" class="nav-avatar" id="navAvatar">`;
+    const url = meta.avatar_url || meta.picture;
+    document.getElementById('perfilAvatar').outerHTML = `<img src="${url}" class="perfil-avatar" id="perfilAvatar">`;
+    document.getElementById('navAvatar').outerHTML = `<img src="${url}" class="nav-avatar" id="navAvatar">`;
   }
 
-
-  // Busca cargos reais do servidor via API do bot
   const discordId = meta.provider_id || meta.sub || user.id;
-  const cargosEl = document.getElementById("perfilCargos");
+  const isAdmin = ADMINS.includes(discordId);
 
   try {
     const resp = await fetch(`${BOT_API}/cargos?user_id=${discordId}`);
-    const dadosCargos = await resp.json();
+    const dados = await resp.json();
 
-    if (dadosCargos.cargos && dadosCargos.cargos.length > 0) {
-      const STAFF_ROLE_ID = "1470615090951880806";
-      const isStaff = ADMINS.includes(discordId) || dadosCargos.cargos.some(c => c.id === STAFF_ROLE_ID);
-
-      cargosEl.innerHTML = dadosCargos.cargos.slice(0, 5).map(c =>
-        `<span class="cargo-badge ${c.id === STAFF_ROLE_ID ? "staff" : ""}">${c.nome}</span>`
-      ).join("");
-
-      document.getElementById("perfilNome").textContent = dadosCargos.patente !== "Cidadão" ? nome + " • " + dadosCargos.patente : nome;
-
+    if (dados.cargos && dados.cargos.length > 0) {
+      const isStaff = isAdmin || dados.cargos.some(c => c.id === STAFF_ROLE_ID);
+      document.getElementById('perfilCargos').innerHTML = dados.cargos.slice(0, 5).map(c =>
+        `<span class="cargo-badge ${c.id === STAFF_ROLE_ID ? 'staff' : ''}">${c.nome}</span>`
+      ).join('');
+      document.getElementById('fichaPatente').textContent = dados.patente || 'Membro';
       if (isStaff) {
-        document.getElementById("staffMenuItem").style.display = "flex";
+        document.getElementById('staffMenuItem').style.display = 'flex';
         carregarStaff();
       }
-    } else {
-      cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
-      if (ADMINS.includes(discordId)) {
-        document.getElementById("staffMenuItem").style.display = "flex";
-        carregarStaff();
-      }
+    } else if (isAdmin) {
+      document.getElementById('staffMenuItem').style.display = 'flex';
+      carregarStaff();
     }
-  } catch (e) {
-    cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
-    if (ADMINS.includes(discordId)) {
-      document.getElementById("staffMenuItem").style.display = "flex";
+  } catch(e) {
+    if (isAdmin) {
+      document.getElementById('staffMenuItem').style.display = 'flex';
       carregarStaff();
     }
   }
 }
 
 async function carregarStaff() {
-  const { data, error } = await db.from('usuarios').select('*').order('criado_em', { ascending: false });
+  const { data } = await db.from('usuarios').select('*').order('criado_em', { ascending: false });
   const tabela = document.getElementById('staffTabela');
-
-  if (!data || data.length === 0) {
-    tabela.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Nenhum membro cadastrado.</td></tr>';
+  if (!data || !data.length) {
+    tabela.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Nenhum membro.</td></tr>';
     return;
   }
-
-  tabela.innerHTML = data.map((u, i) => `
-    <tr>
-      <td>${u.nick || '—'}</td>
-      <td>${u.email || '—'}</td>
-      <td>${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}</td>
-      <td>
-        <button class="btn-action btn-promover" onclick="mostrarToast('✓ Promoção registrada!')">Promover</button>
-        <button class="btn-action btn-ban" onclick="mostrarToast('⚠ Membro banido!')">Banir</button>
-      </td>
-    </tr>
-  `).join('');
+  tabela.innerHTML = data.map(u => `<tr>
+    <td>${u.nick||'—'}</td>
+    <td>${u.email||'—'}</td>
+    <td>${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}</td>
+    <td>
+      <button class="btn-action btn-promover" onclick="toast('✓ Promoção registrada!')">Promover</button>
+      <button class="btn-action btn-ban" onclick="toast('⚠ Membro banido!')">Banir</button>
+    </td>
+  </tr>`).join('');
 }
+
+async function enviar(tipo) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'ENVIANDO...';
+  const msgEl = document.getElementById('msg-' + tipo);
+
+  const campos = {
+    treino: () => ({instrutor:v('t-instrutor'),treinados:v('t-treinados'),data:v('t-data'),status:v('t-status'),observacoes:v('t-obs')}),
+    recrutamento: () => ({recrutado:v('r-recrutado'),recrutador:v('r-recrutador'),data:v('r-data'),observacoes:v('r-obs')}),
+    advertencia: () => ({jogador:v('a-jogador'),motivo:v('a-motivo'),grau:v('a-grau'),data:v('a-data')}),
+    rebaixamento: () => ({usuario:v('rb-usuario'),cargo_anterior:v('rb-anterior'),novo_cargo:v('rb-novo'),motivo:v('rb-motivo'),data:v('rb-data')}),
+    banimento: () => ({jogador:v('b-jogador'),motivo:v('b-motivo'),tempo:v('b-tempo'),data:v('b-data')}),
+    exilio: () => ({exilado:v('e-exilado'),motivo:v('e-motivo'),tipo_exilio:v('e-tipo'),data:v('e-data'),responsavel:v('e-resp')}),
+  };
+
+  const imgIds = {treino:'t-img',recrutamento:'r-img',advertencia:'a-img',rebaixamento:'rb-img',banimento:'b-img',exilio:'e-img'};
+
+  let imagem = null;
+  const imgEl = document.getElementById(imgIds[tipo]);
+  if (imgEl && imgEl.files[0]) {
+    imagem = await new Promise(r => {
+      const fr = new FileReader();
+      fr.onload = e => r(e.target.result);
+      fr.readAsDataURL(imgEl.files[0]);
+    });
+  }
+
+  try {
+    const resp = await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({tipo, campos: campos[tipo](), imagem})
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      msgEl.textContent = '✓ Relatório enviado para o Discord!';
+      msgEl.className = 'msg ok';
+    } else {
+      msgEl.textContent = '⚠ Erro: ' + (data.error||'Tente novamente');
+      msgEl.className = 'msg erro';
+    }
+  } catch(e) {
+    msgEl.textContent = '⚠ Erro de conexão com o bot.';
+    msgEl.className = 'msg erro';
+  }
+
+  msgEl.style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = '⬡ ENVIAR';
+}
+
+function v(id) { return document.getElementById(id)?.value || '—'; }
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
@@ -999,111 +512,17 @@ function trocarTab(tab, el) {
   fecharSidebar();
 }
 
-async function enviarRelatorio(tipo) {
-  const BOT_API = 'https://bot-eb-production.up.railway.app';
-  let campos = {};
-  let imgInput = null;
-
-  if (tipo === 'treino') {
-    campos = {
-      instrutor: document.getElementById('treino-instrutor').value,
-      treinados: document.getElementById('treino-treinados').value,
-      data: document.getElementById('treino-data').value,
-      status: document.getElementById('treino-status').value,
-      observacoes: document.getElementById('treino-obs').value,
-    };
-    imgInput = document.getElementById('treino-img');
-  } else if (tipo === 'recrutamento') {
-    campos = {
-      recrutado: document.getElementById('rec-recrutado').value,
-      recrutador: document.getElementById('rec-recrutador').value,
-      data: document.getElementById('rec-data').value,
-      observacoes: document.getElementById('rec-obs').value,
-    };
-    imgInput = document.getElementById('rec-img');
-  } else if (tipo === 'advertencia') {
-    campos = {
-      jogador: document.getElementById('adv-jogador').value,
-      motivo: document.getElementById('adv-motivo').value,
-      grau: document.getElementById('adv-grau').value,
-      data: document.getElementById('adv-data').value,
-    };
-    imgInput = document.getElementById('adv-img');
-  } else if (tipo === 'rebaixamento') {
-    campos = {
-      usuario: document.getElementById('reb-usuario').value,
-      cargo_anterior: document.getElementById('reb-cargo-anterior').value,
-      novo_cargo: document.getElementById('reb-novo-cargo').value,
-      motivo: document.getElementById('reb-motivo').value,
-      data: document.getElementById('reb-data').value,
-    };
-    imgInput = document.getElementById('reb-img');
-  } else if (tipo === 'banimento') {
-    campos = {
-      jogador: document.getElementById('ban-jogador').value,
-      motivo: document.getElementById('ban-motivo').value,
-      tempo: document.getElementById('ban-tempo').value,
-      data: document.getElementById('ban-data').value,
-    };
-    imgInput = document.getElementById('ban-img');
-  } else if (tipo === 'exilio') {
-    campos = {
-      exilado: document.getElementById('ex-exilado').value,
-      motivo: document.getElementById('ex-motivo').value,
-      tipo_exilio: document.getElementById('ex-tipo').value,
-      data: document.getElementById('ex-data').value,
-      responsavel: document.getElementById('ex-responsavel').value,
-    };
-    imgInput = document.getElementById('ex-img');
-  }
-
-  let imagem = null;
-  if (imgInput && imgInput.files[0]) {
-    imagem = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(imgInput.files[0]);
-    });
-  }
-
-  const msgEl = document.getElementById('msg-' + tipo);
-  try {
-    msgEl.textContent = '⏳ Enviando...';
-    msgEl.style.display = 'block';
-    msgEl.className = 'msg ok';
-
-    const resp = await fetch(`${BOT_API}/relatorio`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, campos, imagem })
-    });
-
-    const data = await resp.json();
-    if (data.ok) {
-      msgEl.textContent = '✓ Relatório enviado para o Discord!';
-    } else {
-      msgEl.textContent = '⚠ Erro: ' + (data.error || 'Tente novamente');
-      msgEl.className = 'msg erro';
-    }
-  } catch (e) {
-    msgEl.textContent = '⚠ Erro de conexão com o bot.';
-    msgEl.className = 'msg erro';
-  }
-}
-
 async function fazerLogout() {
   await db.auth.signOut();
   window.location.href = 'index.html';
 }
 
-function mostrarToast(msg) {
+function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('active');
   setTimeout(() => t.classList.remove('active'), 3000);
 }
-
-carregarUsuario();
 </script>
 </body>
 </html>
