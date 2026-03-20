@@ -748,4 +748,362 @@ tr:hover td { background: rgba(0,255,136,0.02); }
     <div class="tab-sub">// 🚫 Envie para o canal de banimentos</div>
     <div class="content-box">
       <label class="form-label">👤 Jogador</label>
-      <input type="text" class="fo
+      <input type="text" class="form-input" id="ban-jogador" placeholder="Nick do jogador">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="ban-motivo" placeholder="Motivo do banimento..."></textarea>
+      <label class="form-label">⏳ Tempo</label>
+      <input type="text" class="form-input" id="ban-tempo" placeholder="ex: Permanente ou 7 dias">
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="ban-data">
+      <label class="form-label">📸 Prova (imagem)</label>
+      <input type="file" class="form-input" id="ban-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviarRelatorio('banimento')">⬡ ENVIAR RELATÓRIO</button>
+      <div class="msg ok" id="msg-banimento" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- EXÍLIO -->
+  <div class="content-tab" id="tab-rel-exilio">
+    <div class="tab-title">Relatório de Exílio</div>
+    <div class="tab-sub">// 🏴‍☠️ Envie para o canal de exílio</div>
+    <div class="content-box">
+      <label class="form-label">👤 Exilado</label>
+      <input type="text" class="form-input" id="ex-exilado" placeholder="Nick do exilado">
+      <label class="form-label">📝 Motivo</label>
+      <textarea class="form-input" id="ex-motivo" placeholder="Motivo do exílio..."></textarea>
+      <label class="form-label">⛓️ Tipo</label>
+      <select class="form-input" id="ex-tipo">
+        <option>Permanente</option>
+        <option>Temporário</option>
+      </select>
+      <label class="form-label">📅 Data</label>
+      <input type="date" class="form-input" id="ex-data">
+      <label class="form-label">👮 Responsável</label>
+      <input type="text" class="form-input" id="ex-responsavel" placeholder="Seu nick">
+      <label class="form-label">📸 Prova (imagem)</label>
+      <input type="file" class="form-input" id="ex-img" accept="image/*">
+      <button class="btn-enviar" onclick="enviarRelatorio('exilio')">⬡ ENVIAR RELATÓRIO</button>
+      <div class="msg ok" id="msg-exilio" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- FICHA -->
+  <div class="content-tab" id="tab-ficha">
+    <div class="tab-title">Ficha do Membro</div>
+    <div class="tab-sub">// Suas informações no EB</div>
+    <div class="content-box">
+      <div class="box-title">// Dados Pessoais</div>
+      <div class="list-item">
+        <span class="list-num">▶</span>
+        <div><strong style="color:#fff;">Nome no Discord:</strong> <span id="fichaNome">—</span></div>
+      </div>
+      <div class="list-item">
+        <span class="list-num">▶</span>
+        <div><strong style="color:#fff;">Patente Atual:</strong> <span style="color:var(--green);">Verificado</span></div>
+      </div>
+      <div class="list-item">
+        <span class="list-num">▶</span>
+        <div><strong style="color:#fff;">Divisão:</strong> <span>—</span></div>
+      </div>
+      <div class="list-item">
+        <span class="list-num">▶</span>
+        <div><strong style="color:#fff;">Treinos Completados:</strong> <span style="color:var(--green);">0</span></div>
+      </div>
+      <div class="list-item">
+        <span class="list-num">▶</span>
+        <div><strong style="color:#fff;">Status:</strong> <span style="color:var(--green);">ATIVO</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUNIÇÕES -->
+  <div class="content-tab" id="tab-punicoes">
+    <div class="tab-title">Histórico de Punições</div>
+    <div class="tab-sub">// Seu registro disciplinar</div>
+    <div class="content-box">
+      <div class="box-title">// Punições Registradas</div>
+      <div style="text-align:center;padding:2rem;font-size:0.7rem;color:rgba(0,255,136,0.3);">
+        Nenhuma punição registrada. ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- REGRAS -->
+  <div class="content-tab" id="tab-regras">
+    <div class="tab-title">Regras do Grupo</div>
+    <div class="tab-sub">// Regulamento oficial do EB</div>
+    <div class="content-box">
+      <div class="box-title">// Conduta Geral</div>
+      <div class="list-item"><span class="list-num">01</span><div>Respeitar todos os membros independente de patente.</div></div>
+      <div class="list-item"><span class="list-num">02</span><div>Não usar exploits, hacks ou qualquer trapaça — punição imediata.</div></div>
+      <div class="list-item"><span class="list-num">03</span><div>Usar uniforme correto dentro das bases militares.</div></div>
+      <div class="list-item"><span class="list-num">04</span><div>Obedecer ordens de superiores hierárquicos.</div></div>
+      <div class="list-item"><span class="list-num">05</span><div>Não matar aliados — teamkill é punível.</div></div>
+      <div class="list-item"><span class="list-num">06</span><div>Participar de pelo menos 1 evento por semana para não ser inativado.</div></div>
+      <div class="list-item"><span class="list-num">07</span><div>Comportamento inadequado no Discord resulta em suspensão.</div></div>
+      <div class="list-item"><span class="list-num">08</span><div>Proibido vazar informações internas do grupo.</div></div>
+      <div class="list-item"><span class="list-num">09</span><div>Respeitar os inimigos capturados.</div></div>
+      <div class="list-item"><span class="list-num">10</span><div>Pedidos de promoção devem ser feitos pelo canal correto no Discord.</div></div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="content-tab" id="tab-staff">
+    <div class="tab-title">Painel Staff</div>
+    <div class="tab-sub">// Controle de membros</div>
+    <div class="staff-badge">⚠ ÁREA RESTRITA — STAFF AUTORIZADO</div>
+    <div class="content-box">
+      <div class="box-title">// Membros Cadastrados</div>
+      <table>
+        <tr><th>Nick</th><th>Email</th><th>Data</th><th>Ações</th></tr>
+        <tbody id="staffTabela">
+          <tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fcrzzuyfmdkkelylphdm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjcnp6dXlmbWRra2VseWxwaGRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5ODMzMDIsImV4cCI6MjA4OTU1OTMwMn0.NWDkiRgwZ0PwWErchMmhtYhON3Hx3GuDonClfvwf5lc';
+const ADMINS = ['1443070630294585436', '1240467366408880198'];
+const BOT_API = 'https://bot-eb-production.up.railway.app';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Intro e verificação de login
+// Verifica sessão e mostra painel
+async function iniciar() {
+  const { data: { session } } = await db.auth.getSession();
+  const intro = document.getElementById("intro");
+  if (session) {
+    setTimeout(() => {
+      intro.style.transition = "opacity 0.5s ease";
+      intro.style.opacity = "0";
+      setTimeout(() => { intro.style.display = "none"; carregarUsuario(); }, 500);
+    }, 2500);
+  } else {
+    setTimeout(() => { window.location.href = "index.html"; }, 2500);
+  }
+}
+iniciar();
+
+// Carrega dados do usuário
+async function carregarUsuario() {
+  const { data: { session } } = await db.auth.getSession();
+
+  if (!session) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const user = session.user;
+  const meta = user.user_metadata;
+
+  // Nome
+  const nome = meta.full_name || meta.name || meta.global_name || 'Soldado';
+  const tag = meta.discriminator ? '#' + meta.discriminator : '';
+
+  document.getElementById('perfilNome').textContent = nome;
+  document.getElementById('perfilTag').textContent = tag ? 'Discord ' + tag : 'Discord';
+  document.getElementById('navNome').textContent = nome;
+  document.getElementById('fichaNome').textContent = nome;
+
+  // Avatar
+  if (meta.avatar_url || meta.picture) {
+    const avatarUrl = meta.avatar_url || meta.picture;
+    document.getElementById('perfilAvatar').outerHTML = `<img src="${avatarUrl}" class="perfil-avatar" id="perfilAvatar">`;
+    document.getElementById('navAvatar').outerHTML = `<img src="${avatarUrl}" class="nav-avatar" id="navAvatar">`;
+  }
+
+
+  // Busca cargos reais do servidor via API do bot
+  const discordId = meta.provider_id || meta.sub || user.id;
+  const cargosEl = document.getElementById("perfilCargos");
+
+  try {
+    const resp = await fetch(`${BOT_API}/cargos?user_id=${discordId}`);
+    const dadosCargos = await resp.json();
+
+    if (dadosCargos.cargos && dadosCargos.cargos.length > 0) {
+      const STAFF_ROLE_ID = "1470615090951880806";
+      const isStaff = ADMINS.includes(discordId) || dadosCargos.cargos.some(c => c.id === STAFF_ROLE_ID);
+
+      cargosEl.innerHTML = dadosCargos.cargos.slice(0, 5).map(c =>
+        `<span class="cargo-badge ${c.id === STAFF_ROLE_ID ? "staff" : ""}">${c.nome}</span>`
+      ).join("");
+
+      document.getElementById("perfilNome").textContent = dadosCargos.patente !== "Cidadão" ? nome + " • " + dadosCargos.patente : nome;
+
+      if (isStaff) {
+        document.getElementById("staffMenuItem").style.display = "flex";
+        carregarStaff();
+      }
+    } else {
+      cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
+      if (ADMINS.includes(discordId)) {
+        document.getElementById("staffMenuItem").style.display = "flex";
+        carregarStaff();
+      }
+    }
+  } catch (e) {
+    cargosEl.innerHTML = '<span class="cargo-badge">Membro</span>';
+    if (ADMINS.includes(discordId)) {
+      document.getElementById("staffMenuItem").style.display = "flex";
+      carregarStaff();
+    }
+  }
+}
+
+async function carregarStaff() {
+  const { data, error } = await db.from('usuarios').select('*').order('criado_em', { ascending: false });
+  const tabela = document.getElementById('staffTabela');
+
+  if (!data || data.length === 0) {
+    tabela.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:rgba(0,255,136,0.3);">Nenhum membro cadastrado.</td></tr>';
+    return;
+  }
+
+  tabela.innerHTML = data.map((u, i) => `
+    <tr>
+      <td>${u.nick || '—'}</td>
+      <td>${u.email || '—'}</td>
+      <td>${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}</td>
+      <td>
+        <button class="btn-action btn-promover" onclick="mostrarToast('✓ Promoção registrada!')">Promover</button>
+        <button class="btn-action btn-ban" onclick="mostrarToast('⚠ Membro banido!')">Banir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('active');
+}
+
+function fecharSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function trocarTab(tab, el) {
+  document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (el) el.classList.add('active');
+  fecharSidebar();
+}
+
+async function enviarRelatorio(tipo) {
+  const BOT_API = 'https://bot-eb-production.up.railway.app';
+  let campos = {};
+  let imgInput = null;
+
+  if (tipo === 'treino') {
+    campos = {
+      instrutor: document.getElementById('treino-instrutor').value,
+      treinados: document.getElementById('treino-treinados').value,
+      data: document.getElementById('treino-data').value,
+      status: document.getElementById('treino-status').value,
+      observacoes: document.getElementById('treino-obs').value,
+    };
+    imgInput = document.getElementById('treino-img');
+  } else if (tipo === 'recrutamento') {
+    campos = {
+      recrutado: document.getElementById('rec-recrutado').value,
+      recrutador: document.getElementById('rec-recrutador').value,
+      data: document.getElementById('rec-data').value,
+      observacoes: document.getElementById('rec-obs').value,
+    };
+    imgInput = document.getElementById('rec-img');
+  } else if (tipo === 'advertencia') {
+    campos = {
+      jogador: document.getElementById('adv-jogador').value,
+      motivo: document.getElementById('adv-motivo').value,
+      grau: document.getElementById('adv-grau').value,
+      data: document.getElementById('adv-data').value,
+    };
+    imgInput = document.getElementById('adv-img');
+  } else if (tipo === 'rebaixamento') {
+    campos = {
+      usuario: document.getElementById('reb-usuario').value,
+      cargo_anterior: document.getElementById('reb-cargo-anterior').value,
+      novo_cargo: document.getElementById('reb-novo-cargo').value,
+      motivo: document.getElementById('reb-motivo').value,
+      data: document.getElementById('reb-data').value,
+    };
+    imgInput = document.getElementById('reb-img');
+  } else if (tipo === 'banimento') {
+    campos = {
+      jogador: document.getElementById('ban-jogador').value,
+      motivo: document.getElementById('ban-motivo').value,
+      tempo: document.getElementById('ban-tempo').value,
+      data: document.getElementById('ban-data').value,
+    };
+    imgInput = document.getElementById('ban-img');
+  } else if (tipo === 'exilio') {
+    campos = {
+      exilado: document.getElementById('ex-exilado').value,
+      motivo: document.getElementById('ex-motivo').value,
+      tipo_exilio: document.getElementById('ex-tipo').value,
+      data: document.getElementById('ex-data').value,
+      responsavel: document.getElementById('ex-responsavel').value,
+    };
+    imgInput = document.getElementById('ex-img');
+  }
+
+  let imagem = null;
+  if (imgInput && imgInput.files[0]) {
+    imagem = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(imgInput.files[0]);
+    });
+  }
+
+  const msgEl = document.getElementById('msg-' + tipo);
+  try {
+    msgEl.textContent = '⏳ Enviando...';
+    msgEl.style.display = 'block';
+    msgEl.className = 'msg ok';
+
+    const resp = await fetch(`${BOT_API}/relatorio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, campos, imagem })
+    });
+
+    const data = await resp.json();
+    if (data.ok) {
+      msgEl.textContent = '✓ Relatório enviado para o Discord!';
+    } else {
+      msgEl.textContent = '⚠ Erro: ' + (data.error || 'Tente novamente');
+      msgEl.className = 'msg erro';
+    }
+  } catch (e) {
+    msgEl.textContent = '⚠ Erro de conexão com o bot.';
+    msgEl.className = 'msg erro';
+  }
+}
+
+async function fazerLogout() {
+  await db.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), 3000);
+}
+
+carregarUsuario();
+</script>
+</body>
+</html>
