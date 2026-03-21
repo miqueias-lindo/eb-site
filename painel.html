@@ -1210,10 +1210,6 @@ tr:hover td { background: var(--bg-hover); }
   <div class="sb-item" onclick="goTo('eventos', this)">
     <span class="ico">📅</span> Eventos
   </div>
-  <div class="sb-item" onclick="goTo('promocao', this)">
-    <span class="ico">⬆️</span> Pedir Promoção
-  </div>
-
   <!-- Relatórios -->
   <div class="sb-section-label">⬡ Relatórios</div>
   <div class="sb-item" onclick="goTo('r-treino', this)" id="si-treino">
@@ -1471,38 +1467,6 @@ tr:hover td { background: var(--bg-hover); }
   </div>
 
   <!-- ─── PROMOÇÃO ─── -->
-  <div class="content-tab" id="tab-promocao" data-anim="lime">
-    <div class="page-head">
-      <div><div class="page-title accent-lime">Solicitar Promoção</div><div class="page-sub">// Envie sua solicitação ao staff</div></div>
-    </div>
-    <div class="box lime">
-      <div class="field">
-        <label class="form-label">Seu Nick no Roblox</label>
-        <input type="text" class="form-input" id="promNick" placeholder="Seu nick">
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label class="form-label">Patente Atual</label>
-          <input type="text" class="form-input" id="promAtual" placeholder="Atual">
-        </div>
-        <div class="field">
-          <label class="form-label">Patente Desejada</label>
-          <input type="text" class="form-input" id="promDesejada" placeholder="Desejada">
-        </div>
-      </div>
-      <div class="field">
-        <label class="form-label">Justificativa</label>
-        <textarea class="form-input" id="promJust" placeholder="Por que merece a promoção?"></textarea>
-      </div>
-      <div class="field">
-        <label class="form-label">Evidências (imagem)</label>
-        <input type="file" class="form-input" id="promImg" accept="image/*">
-      </div>
-      <button class="btn btn-full" onclick="enviarPromocao()"><span>⬡ ENVIAR SOLICITAÇÃO</span></button>
-      <div class="alert" id="alertProm"></div>
-    </div>
-  </div>
-
   <!-- ═══════════════════════════════════════════
        RELATÓRIOS (com bloqueio por permissão)
   ═══════════════════════════════════════════ -->
@@ -2488,38 +2452,6 @@ async function enviarEvento() {
       body: JSON.stringify({ tipo: `evento_${canal}`, campos: { nome, tipo, data, descricao: desc } }),
     });
   } catch (_) {}
-}
-
-async function enviarPromocao() {
-  const nick     = document.getElementById('promNick').value.trim();
-  const atual    = document.getElementById('promAtual').value.trim();
-  const desejada = document.getElementById('promDesejada').value.trim();
-  const just     = document.getElementById('promJust').value.trim();
-  const alertEl  = document.getElementById('alertProm');
-
-  if (!nick || !atual || !desejada) { showAlert2(alertEl, '⚠ Preencha os campos obrigatórios.', 'err'); return; }
-
-  let imagem = null;
-  const imgEl = document.getElementById('promImg');
-  if (imgEl?.files[0]) imagem = await fileToBase64(imgEl.files[0]);
-
-  addLog('relat', `Solicitação de promoção: ${nick} (${atual} → ${desejada})`);
-
-  try {
-    const r = await fetch(`${BOT_API}/relatorio`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tipo: 'promocao',
-        campos: { nick, patente_atual: atual, patente_desejada: desejada, justificativa: just },
-        imagem,
-      }),
-    });
-    const d = await r.json();
-    showAlert2(alertEl, d.ok ? '✓ Solicitação enviada ao staff!' : `⚠ ${d.error || 'Erro'}`, d.ok ? 'ok' : 'err');
-  } catch (_) {
-    showAlert2(alertEl, '✓ Solicitação registrada localmente.', 'ok');
-  }
 }
 
 /* ══════════════════════════════════════════════
