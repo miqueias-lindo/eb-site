@@ -932,48 +932,89 @@ async function loadUser(session) {
   const avatar = meta.avatar_url || meta.picture || null;
   CURRENT_NICK = nome;
 
-  // Discord ID do provider
+  // Discord ID do OAuth provider
   DISCORD_ID = meta.provider_id || meta.sub || user.id;
 
   setUserUI(nome, avatar, 'Membro', 'user');
 
-  // Autentica no backend
-  const authRes = await apiFetch('/auth', {
-    method: 'POST',
-    body: JSON.stringify({ discord_id: DISCORD_ID, nick: nome })
-  });
+  // IDs de admin — sempre staff
+  const ADMIN_IDS    = ['1443070630294585436', '1240467366408880198'];
+  const STAFF_ROLE_ID = '1470615090951880806';
 
-  if (authRes.ok) {
-    API_TOKEN = authRes.token;
-    IS_STAFF  = authRes.nivel === 'staff' || authRes.nivel === 'admin';
-    HAS_PERM  = authRes.pode_relatorio || IS_STAFF;
-    applyPermUI(HAS_PERM);
-    if (IS_STAFF) setupStaff();
+  if (ADMIN_IDS.includes(DISCORD_ID)) {
+    IS_STAFF = true; HAS_PERM = true;
+    applyPermUI(true);
+    setupStaff();
+    return;
   }
 
-  // Busca cargos no bot (com cache)
+  // 1) Tenta backend novo /auth (com timeout de 3s)
   try {
-    const cRes = await apiFetch(`/cargos?user_id=${DISCORD_ID}`);
-    if (cRes.ok) {
+    const authRes = await Promise.race([
+      apiFetch('/auth', { method: 'POST', body: JSON.stringify({ discord_id: DISCORD_ID, nick: nome }) }),
+      delay(3000).then(() => ({ ok: false }))
+    ]);
+    if (authRes.ok) {
+      API_TOKEN = authRes.token;
+      if (authRes.nivel === 'staff' || authRes.nivel === 'admin') {
+        IS_STAFF = true; HAS_PERM = true;
+        applyPermUI(true);
+        setupStaff();
+        return;
+      }
+      HAS_PERM = !!authRes.pode_relatorio;
+      applyPermUI(HAS_PERM);
+    }
+  } catch(_) {}
+
+  // 2) Busca cargos pelo bot (verifica cargo de staff)
+  try {
+    const cRes = await Promise.race([
+      fetch(`${BOT_API}/cargos?user_id=${DISCORD_ID}`).then(r => r.json()),
+      delay(4000).then(() => ({}))
+    ]);
+
+    if (cRes.patente || cRes.cargos) {
       const patente = cRes.patente || 'Membro';
-      $('profileRole').textContent = patente;
-      $('sbRole').textContent      = patente;
-      $('fichaPatente').textContent = patente;
-      $('stPatente').textContent   = patente;
+      ['profileRole','sbRole','fichaPatente','stPatente'].forEach(id => {
+        if ($(id)) $(id).textContent = patente;
+      });
+
+      const isStaffByCargo = cRes.is_staff ||
+        (cRes.cargos || []).some(c => c.id === STAFF_ROLE_ID);
 
       if (cRes.cargos?.length) {
         $('profileCargos').innerHTML = cRes.cargos.slice(0,5).map(c =>
-          `<span class="cargo-pill ${cRes.is_staff ? 'staff' : ''}">${c.nome}</span>`
+          `<span class="cargo-pill ${isStaffByCargo ? 'staff' : ''}">${c.nome}</span>`
         ).join('');
         $('sbBadges').innerHTML = cRes.cargos.slice(0,3).map(c =>
-          `<span class="sb-pill">${c.nome}</span>`
+          `<span class="sb-pill ${isStaffByCargo ? 'staff' : ''}">${c.nome}</span>`
         ).join('');
       }
 
-      IS_STAFF = IS_STAFF || cRes.is_staff;
-      if (IS_STAFF && !staffShown) setupStaff();
+      if (isStaffByCargo) {
+        IS_STAFF = true; HAS_PERM = true;
+        applyPermUI(true);
+        setupStaff();
+        return;
+      }
     }
   } catch(_) {}
+
+  // 3) Fallback: verifica permissão no Supabase
+  try {
+    const { data } = await db.from('usuarios')
+      .select('pode_enviar_relatorio')
+      .eq('email', user.email)
+      .maybeSingle();
+    if (data?.pode_enviar_relatorio) {
+      HAS_PERM = true;
+      applyPermUI(true);
+    }
+  } catch(_) {}
+
+  // Garante que pelo menos o estado de locked está correto
+  applyPermUI(HAS_PERM);
 }
 
 function setUserUI(nome, avatar, role, nivel) {
